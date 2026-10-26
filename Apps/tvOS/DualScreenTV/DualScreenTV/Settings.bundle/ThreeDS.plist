@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PreferenceSpecifiers</key>
+	<array>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>3DS Renderer</string>
+			<key>FooterText</key>
+			<string>Vulkan is the recommended renderer. Native Metal is an early 1× beta. Metal + Vulkan uses Metal for supported draw batches and falls back to Vulkan for unsupported effects. Performance and compatibility are experimental. Reopen the game after changing renderer. Your in-game saves are shared.</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Graphics Backend</string>
+			<key>Key</key>
+			<string>graphics.3ds.renderer</string>
+			<key>DefaultValue</key>
+			<string>vulkan</string>
+			<key>Values</key>
+			<array>
+				<string>vulkan</string>
+				<string>metal</string>
+				<string>mixed</string>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>Vulkan / MoltenVK (Recommended)</string>
+				<string>Native Metal Only Beta (1×)</string>
+				<string>Metal + Vulkan Beta (1×, Vulkan fallback)</string>
+			</array>
+		</dict>
+        <dict>
+            <key>Type</key><string>PSGroupSpecifier</string>
+            <key>Title</key><string>Native Metal Experiments</string>
+            <key>FooterText</key><string>GPU Surface Cache reuses compatible framebuffer contents on the GPU. Early accuracy and performance testing only; Native Metal backends only. Turn off to use the original native path. Applies on return from Settings.</string>
+        </dict>
+        <dict>
+            <key>Type</key><string>PSToggleSwitchSpecifier</string>
+            <key>Title</key><string>GPU Surface Cache (Experimental)</string>
+            <key>Key</key><string>graphics.3ds.metalSurfaceCache</string>
+            <key>DefaultValue</key><false/>
+        </dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>3DS Internal Resolution</string>
+			<key>FooterText</key>
+			<string>Vulkan: renders 3D at higher resolution on both screens. Native Metal Beta currently stays at 1×. Return from Settings and choose Resume Game to apply without quitting. A brief resizing pause is possible. Start with 2×; higher factors increase GPU work and memory use. Pixel-art enhancement is bypassed above 1×.</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>3DS Internal Resolution</string>
+			<key>Key</key>
+			<string>graphics.3ds.resolution</string>
+			<key>DefaultValue</key>
+			<integer>1</integer>
+			<key>Values</key>
+			<array>
+				<integer>1</integer>
+				<integer>2</integer>
+				<integer>3</integer>
+				<integer>4</integer>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>1× Native (400 × 240)</string>
+				<string>2× (800 × 480)</string>
+				<string>3× (1200 × 720)</string>
+				<string>4× (1600 × 960)</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>3DS Output Frame Rate</string>
+			<key>FooterText</key>
+			<string>30 FPS reduces final compositing and readback work while keeping game logic and audio at normal speed. Useful for 30 FPS games such as ORAS. This does not halve emulation speed. Applies on return from Settings.</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>3DS Output Frame Rate</string>
+			<key>Key</key>
+			<string>graphics.3ds.presentationRate</string>
+			<key>DefaultValue</key>
+			<integer>60</integer>
+			<key>Values</key>
+			<array>
+				<integer>60</integer>
+				<integer>30</integer>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>60 FPS (Default)</string>
+				<string>30 FPS (Reduced Presentation Work)</string>
+			</array>
+		</dict>
+	</array>
+	<key>StringsTable</key>
+	<string>Root</string>
+</dict>
+</plist>

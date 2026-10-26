@@ -1,0 +1,82 @@
+--- a/src/common/settings.h
++++ b/src/common/settings.h
+@@ -23,6 +23,7 @@ enum class GraphicsAPI {
+     OpenGL = 1,
+     Vulkan = 2,
+     Metal = 3,
++    MetalHybrid = 4,
+ };
+ 
+ enum class InitClock : u32 {
+--- a/src/common/settings.cpp
++++ b/src/common/settings.cpp
+@@ -31,4 +31,5 @@ std::string_view GetGraphicsAPIName(GraphicsAPI api) {
+     switch (api) {
+     case GraphicsAPI::Metal: return "Metal prototype (hybrid)";
++    case GraphicsAPI::MetalHybrid: return "Metal + Vulkan fallback";
+     case GraphicsAPI::Software:
+         return "Software";
+--- a/src/video_core/video_core.cpp
++++ b/src/video_core/video_core.cpp
+@@ -39,5 +39,10 @@ std::unique_ptr<RendererBase> CreateRenderer(Frontend::EmuWindow& emu_window,
+         return std::make_unique<SwRenderer::RendererSoftware>(system, pica, emu_window);
+ #endif
+ #ifdef ENABLE_VULKAN
++#ifdef ENABLE_METAL
++    case Settings::GraphicsAPI::MetalHybrid:
++        return std::make_unique<AzaharMetal::HybridRenderer>(system, pica, emu_window,
++                                                             secondary_window);
++#endif
+     case Settings::GraphicsAPI::Vulkan:
+ #if defined(ENABLE_SDL2) && !defined(__APPLE__)
+--- a/src/citra_libretro/core_settings.cpp
++++ b/src/citra_libretro/core_settings.cpp
+@@ -940,2 +940,5 @@ static Settings::GraphicsAPI GetGraphicsAPI(const std::string& name) {
+     if (name == "Metal") return Settings::GraphicsAPI::Metal;
++#if defined(ENABLE_VULKAN) && defined(ENABLE_METAL)
++    if (name == "MetalHybrid") return Settings::GraphicsAPI::MetalHybrid;
++#endif
+     if (name == "Software")
+@@ -1145,7 +1148,10 @@ void ParseCoreOptions(void) {
+     ParseLayoutOptions();
+     ParseStorageOptions();
+     ParseInputOptions();
+-    if (Settings::values.graphics_api.GetValue() == Settings::GraphicsAPI::Metal) Settings::values.resolution_factor = 1;
++    if (Settings::values.graphics_api.GetValue() == Settings::GraphicsAPI::Metal ||
++        Settings::values.graphics_api.GetValue() == Settings::GraphicsAPI::MetalHybrid) {
++        Settings::values.resolution_factor = 1;
++    }
+ }
+ 
+ } // namespace LibRetro
+--- a/src/citra_libretro/citra_libretro.cpp
++++ b/src/citra_libretro/citra_libretro.cpp
+@@ -462,4 +462,7 @@ static void context_reset() {
+ #ifdef ENABLE_VULKAN
+     case Settings::GraphicsAPI::Vulkan:
++#ifdef ENABLE_METAL
++    case Settings::GraphicsAPI::MetalHybrid:
++#endif
+         LibRetro::VulkanResetContext();
+         break;
+@@ -588,5 +591,8 @@ bool retro_load_game(const struct retro_game_info* info) {
+ #endif
+         break;
+     }
++#ifdef ENABLE_METAL
++    case Settings::GraphicsAPI::MetalHybrid:
++#endif
+     case Settings::GraphicsAPI::Vulkan: {
+         // These braces are required (not only for consistency): vk_negotiation
+--- a/src/citra_libretro/emu_window/libretro_window.cpp
++++ b/src/citra_libretro/emu_window/libretro_window.cpp
+@@ -98,6 +98,9 @@ void EmuWindow_LibRetro::SwapBuffers() {
+ #endif
+         break;
+     }
++#ifdef ENABLE_METAL
++    case Settings::GraphicsAPI::MetalHybrid:
++#endif
+     case Settings::GraphicsAPI::Vulkan: {
+ #ifdef ENABLE_VULKAN
+         // Cursor is drawn inside the Vulkan render pass (RendererVulkan::DrawCursor)

@@ -1,0 +1,9 @@
+diff --git a/src/citra_libretro/input/mouse_tracker.cpp b/src/citra_libretro/input/mouse_tracker.cpp
+index a4ba964..adb0035 100644
+--- a/src/citra_libretro/input/mouse_tracker.cpp
++++ b/src/citra_libretro/input/mouse_tracker.cpp
+@@ -260,3 +260,3 @@ void MouseTracker::Render(int bufferWidth, int bufferHeight, void* framebuffer_d
+ Frontend::EmuWindow::CursorInfo MouseTracker::GetCursorInfo() {
+-    bool visible = true;
++    bool visible = false; // DualScreenTV: direct touch has no emulated cursor.
+     auto current = std::chrono::steady_clock::now();

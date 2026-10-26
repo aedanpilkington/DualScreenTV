@@ -1,0 +1,153 @@
+--- a/src/common/settings.h
++++ b/src/common/settings.h
+@@ -23,6 +23,7 @@
+     Software = 0,
+     OpenGL = 1,
+     Vulkan = 2,
++    Metal = 3,
+ };
+ 
+ enum class InitClock : u32 {
+@@ -525,7 +526,7 @@
+ // TODO: Add a null renderer backend for this, perhaps.
+ #error "At least one renderer must be enabled."
+ #endif
+-        GraphicsAPI::Software, GraphicsAPI::Vulkan, Keys::graphics_api};
++        GraphicsAPI::Software, GraphicsAPI::MetalHybrid, Keys::graphics_api};
+     // clang-format on
+     SwitchableSetting<u32> physical_device{0, Keys::physical_device};
+     Setting<bool> use_gles{false, Keys::use_gles};
+--- a/src/common/settings.cpp
++++ b/src/common/settings.cpp
+@@ -30,6 +30,7 @@
+ 
+ std::string_view GetGraphicsAPIName(GraphicsAPI api) {
+     switch (api) {
++    case GraphicsAPI::Metal: return "Metal prototype (hybrid)";
+     case GraphicsAPI::Software:
+         return "Software";
+     case GraphicsAPI::OpenGL:
+--- a/src/video_core/video_core.cpp
++++ b/src/video_core/video_core.cpp
+@@ -15,6 +15,9 @@
+ #include "video_core/renderer_vulkan/renderer_vulkan.h"
+ #endif
+ #include "video_core/video_core.h"
++#ifdef ENABLE_METAL
++#include "MetalRasterizer.h"
++#endif
+ 
+ #ifdef ENABLE_SDL2
+ #include <SDL.h>
+@@ -27,6 +30,10 @@
+                                              Pica::PicaCore& pica, Core::System& system) {
+     const auto graphics_api = Settings::GetWorkingGraphicsAPI();
+     switch (graphics_api) {
++#ifdef ENABLE_METAL
++    case Settings::GraphicsAPI::Metal:
++        return std::make_unique<AzaharMetal::Renderer>(system, pica, emu_window);
++#endif
+ #ifdef ENABLE_SOFTWARE_RENDERER
+     case Settings::GraphicsAPI::Software:
+         return std::make_unique<SwRenderer::RendererSoftware>(system, pica, emu_window);
+--- a/src/citra_libretro/core_settings.cpp
++++ b/src/citra_libretro/core_settings.cpp
+@@ -938,6 +938,7 @@
+ }
+ 
+ static Settings::GraphicsAPI GetGraphicsAPI(const std::string& name) {
++    if (name == "Metal") return Settings::GraphicsAPI::Metal;
+     if (name == "Software")
+         return Settings::GraphicsAPI::Software;
+ #ifdef ENABLE_VULKAN
+@@ -1145,6 +1146,7 @@
+     ParseLayoutOptions();
+     ParseStorageOptions();
+     ParseInputOptions();
++    if (Settings::values.graphics_api.GetValue() == Settings::GraphicsAPI::Metal) Settings::values.resolution_factor = 1;
+ }
+ 
+ } // namespace LibRetro
+--- a/src/citra_libretro/citra_libretro.cpp
++++ b/src/citra_libretro/citra_libretro.cpp
+@@ -629,6 +629,7 @@
+ #endif
+         break;
+     }
++    case Settings::GraphicsAPI::Metal:
+     case Settings::GraphicsAPI::Software: {
+         emu_instance->emu_window->CreateContext();
+         emu_instance->game_loaded = do_load_game();
+--- a/src/citra_libretro/emu_window/libretro_window.cpp
++++ b/src/citra_libretro/emu_window/libretro_window.cpp
+@@ -106,6 +106,7 @@
+ #endif
+         break;
+     }
++    case Settings::GraphicsAPI::Metal:
+     case Settings::GraphicsAPI::Software: {
+         retro_framebuffer fb;
+         u8* data;
+@@ -211,8 +212,9 @@
+     // instead. In libretro there's no such thread, so we present here: PollEvents is
+     // called from EndFrame() during each VBlank, right after PrepareRenderTarget has
+     // filled the screen pixel buffers.
+-    if (Settings::values.graphics_api.GetValue() == Settings::GraphicsAPI::Software) {
+-        SwapBuffers();
++    if (Settings::values.graphics_api.GetValue() == Settings::GraphicsAPI::Software || Settings::values.graphics_api.GetValue() == Settings::GraphicsAPI::Metal) {
++        if (Settings::values.graphics_api.GetValue() != Settings::GraphicsAPI::Metal || ShouldPresentFrame()) SwapBuffers();
++        else OnFrameSkipped();
+     }
+ 
+     LibRetro::PollInput();
+--- a/src/video_core/renderer_software/sw_framebuffer.h
++++ b/src/video_core/renderer_software/sw_framebuffer.h
+@@ -50,9 +50,9 @@
+ private:
+     Memory::MemorySystem& memory;
+     const Pica::FramebufferRegs& regs;
+-    PAddr color_addr;
++    PAddr color_addr{};
+     u8* color_buffer{};
+-    PAddr depth_addr;
++    PAddr depth_addr{};
+     u8* depth_buffer{};
+ };
+ 
+--- a/src/video_core/CMakeLists.txt
++++ b/src/video_core/CMakeLists.txt
+@@ -228,3 +228,26 @@
+ if (CITRA_USE_PRECOMPILED_HEADERS)
+     target_precompile_headers(video_core PRIVATE precompiled_headers.h)
+ endif()
++
++if(DSTV_NATIVE_METAL_DIR)
++    enable_language(OBJCXX)
++    set_property(TARGET video_core PROPERTY OBJCXX_STANDARD 20)
++    add_compile_definitions(ENABLE_METAL)
++    set(SPIRV_CROSS_CLI OFF CACHE BOOL "" FORCE)
++    set(SPIRV_CROSS_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
++    set(SPIRV_CROSS_ENABLE_HLSL OFF CACHE BOOL "" FORCE)
++    set(SPIRV_CROSS_ENABLE_CPP OFF CACHE BOOL "" FORCE)
++    set(SPIRV_CROSS_ENABLE_REFLECT OFF CACHE BOOL "" FORCE)
++    set(SPIRV_CROSS_ENABLE_C_API OFF CACHE BOOL "" FORCE)
++    add_subdirectory("${DSTV_SPIRV_CROSS_DIR}" "${CMAKE_BINARY_DIR}/dstv-spirv-cross")
++    target_compile_definitions(video_core PUBLIC ENABLE_METAL)
++    target_include_directories(video_core PRIVATE "${DSTV_NATIVE_METAL_DIR}")
++    target_sources(video_core PRIVATE
++        "${DSTV_NATIVE_METAL_DIR}/MetalShaderCompiler.cpp"
++        "${DSTV_NATIVE_METAL_DIR}/PicaShaderIR.cpp"
++        "${DSTV_NATIVE_METAL_DIR}/MetalDraw.mm"
++        "${DSTV_NATIVE_METAL_DIR}/MetalVertexCompiler.cpp"
++        "${DSTV_NATIVE_METAL_DIR}/MetalRasterizer.cpp")
++    set_source_files_properties("${DSTV_NATIVE_METAL_DIR}/MetalDraw.mm" PROPERTIES COMPILE_FLAGS "-fobjc-arc")
++    target_link_libraries(video_core PRIVATE spirv-cross-msl "-framework Metal" "-framework Foundation")
++endif()
+--- a/src/citra_libretro/libretro.osx.def
++++ b/src/citra_libretro/libretro.osx.def
+@@ -28,2 +28,5 @@
+ _retro_get_memory_data
+ _retro_get_memory_size
++_dstv_metal_native_batches
++_dstv_metal_fallback_batches
++_dstv_metal_vertex_batches

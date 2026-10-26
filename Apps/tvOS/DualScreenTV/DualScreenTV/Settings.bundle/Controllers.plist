@@ -1,0 +1,981 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PreferenceSpecifiers</key>
+	<array>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Controller Preview</string>
+			<key>FooterText</key>
+			<string>For the interactive controller diagram and button highlighting, open DualScreenTV and choose Controllers on the home screen. The mappings below also remain available here in Apple TV Settings.</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Screen Switching</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Gamepad Screen Shortcut</string>
+			<key>Key</key>
+			<string>controls.screenShortcut</string>
+			<key>DefaultValue</key>
+			<string>triggers</string>
+			<key>Values</key>
+			<array>
+				<string>triggers</string>
+				<string>shoulders</string>
+				<string>menuOptions</string>
+				<string>off</string>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>LT + RT / L2 + R2</string>
+				<string>LB + RB / L1 + R1</string>
+				<string>Start + Select / Menu + View</string>
+				<string>Off</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Remote: Center + Play/Pause</string>
+			<key>Key</key>
+			<string>remote.screenShortcut</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Gamepad</string>
+			<key>FooterText</key>
+			<string>Shared layout for Xbox, PlayStation and other compatible gamepads. Face buttons are identified by position. Default preserves controller-specific mappings. D-pad directions stay fixed. Missing buttons are ignored. Changes apply on return to the game. The left stick controls DS directions or the 3DS Circle Pad. The right stick controls the 3DS C-Stick. ZL/ZR assignments apply to 3DS games only. Stick Click assignments apply to pressing the stick, not moving it.</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Bottom Face — A / Cross</string>
+			<key>Key</key>
+			<string>gamepad.south</string>
+			<key>DefaultValue</key>
+			<string>default</string>
+			<key>Values</key>
+			<array>
+				<string>default</string>
+				<string>none</string>
+				<string>a</string>
+				<string>b</string>
+				<string>x</string>
+				<string>y</string>
+				<string>l</string>
+				<string>r</string>
+				<string>zl</string>
+				<string>zr</string>
+				<string>start</string>
+				<string>select</string>
+				<string>fastForward</string>
+				<string>pause</string>
+				<string>reset</string>
+				<string>saveState</string>
+				<string>loadState</string>
+				<string>switchScreen</string>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>Default</string>
+				<string>Unassigned</string>
+				<string>DS A</string>
+				<string>DS B</string>
+				<string>DS X</string>
+				<string>DS Y</string>
+				<string>DS L</string>
+				<string>DS R</string>
+				<string>3DS ZL</string>
+				<string>3DS ZR</string>
+				<string>DS Start</string>
+				<string>DS Select</string>
+				<string>Fast Forward</string>
+				<string>Pause / Resume</string>
+				<string>Reset Game</string>
+				<string>Save State</string>
+				<string>Load State</string>
+				<string>Switch Top / Bottom Screen</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Right Face — B / Circle</string>
+			<key>Key</key>
+			<string>gamepad.east</string>
+			<key>DefaultValue</key>
+			<string>default</string>
+			<key>Values</key>
+			<array>
+				<string>default</string>
+				<string>none</string>
+				<string>a</string>
+				<string>b</string>
+				<string>x</string>
+				<string>y</string>
+				<string>l</string>
+				<string>r</string>
+				<string>zl</string>
+				<string>zr</string>
+				<string>start</string>
+				<string>select</string>
+				<string>fastForward</string>
+				<string>pause</string>
+				<string>reset</string>
+				<string>saveState</string>
+				<string>loadState</string>
+				<string>switchScreen</string>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>Default</string>
+				<string>Unassigned</string>
+				<string>DS A</string>
+				<string>DS B</string>
+				<string>DS X</string>
+				<string>DS Y</string>
+				<string>DS L</string>
+				<string>DS R</string>
+				<string>3DS ZL</string>
+				<string>3DS ZR</string>
+				<string>DS Start</string>
+				<string>DS Select</string>
+				<string>Fast Forward</string>
+				<string>Pause / Resume</string>
+				<string>Reset Game</string>
+				<string>Save State</string>
+				<string>Load State</string>
+				<string>Switch Top / Bottom Screen</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Left Face — X / Square</string>
+			<key>Key</key>
+			<string>gamepad.west</string>
+			<key>DefaultValue</key>
+			<string>default</string>
+			<key>Values</key>
+			<array>
+				<string>default</string>
+				<string>none</string>
+				<string>a</string>
+				<string>b</string>
+				<string>x</string>
+				<string>y</string>
+				<string>l</string>
+				<string>r</string>
+				<string>zl</string>
+				<string>zr</string>
+				<string>start</string>
+				<string>select</string>
+				<string>fastForward</string>
+				<string>pause</string>
+				<string>reset</string>
+				<string>saveState</string>
+				<string>loadState</string>
+				<string>switchScreen</string>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>Default</string>
+				<string>Unassigned</string>
+				<string>DS A</string>
+				<string>DS B</string>
+				<string>DS X</string>
+				<string>DS Y</string>
+				<string>DS L</string>
+				<string>DS R</string>
+				<string>3DS ZL</string>
+				<string>3DS ZR</string>
+				<string>DS Start</string>
+				<string>DS Select</string>
+				<string>Fast Forward</string>
+				<string>Pause / Resume</string>
+				<string>Reset Game</string>
+				<string>Save State</string>
+				<string>Load State</string>
+				<string>Switch Top / Bottom Screen</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Top Face — Y / Triangle</string>
+			<key>Key</key>
+			<string>gamepad.north</string>
+			<key>DefaultValue</key>
+			<string>default</string>
+			<key>Values</key>
+			<array>
+				<string>default</string>
+				<string>none</string>
+				<string>a</string>
+				<string>b</string>
+				<string>x</string>
+				<string>y</string>
+				<string>l</string>
+				<string>r</string>
+				<string>zl</string>
+				<string>zr</string>
+				<string>start</string>
+				<string>select</string>
+				<string>fastForward</string>
+				<string>pause</string>
+				<string>reset</string>
+				<string>saveState</string>
+				<string>loadState</string>
+				<string>switchScreen</string>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>Default</string>
+				<string>Unassigned</string>
+				<string>DS A</string>
+				<string>DS B</string>
+				<string>DS X</string>
+				<string>DS Y</string>
+				<string>DS L</string>
+				<string>DS R</string>
+				<string>3DS ZL</string>
+				<string>3DS ZR</string>
+				<string>DS Start</string>
+				<string>DS Select</string>
+				<string>Fast Forward</string>
+				<string>Pause / Resume</string>
+				<string>Reset Game</string>
+				<string>Save State</string>
+				<string>Load State</string>
+				<string>Switch Top / Bottom Screen</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Left Shoulder — LB / L1</string>
+			<key>Key</key>
+			<string>gamepad.leftShoulder</string>
+			<key>DefaultValue</key>
+			<string>default</string>
+			<key>Values</key>
+			<array>
+				<string>default</string>
+				<string>none</string>
+				<string>a</string>
+				<string>b</string>
+				<string>x</string>
+				<string>y</string>
+				<string>l</string>
+				<string>r</string>
+				<string>zl</string>
+				<string>zr</string>
+				<string>start</string>
+				<string>select</string>
+				<string>fastForward</string>
+				<string>pause</string>
+				<string>reset</string>
+				<string>saveState</string>
+				<string>loadState</string>
+				<string>switchScreen</string>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>Default</string>
+				<string>Unassigned</string>
+				<string>DS A</string>
+				<string>DS B</string>
+				<string>DS X</string>
+				<string>DS Y</string>
+				<string>DS L</string>
+				<string>DS R</string>
+				<string>3DS ZL</string>
+				<string>3DS ZR</string>
+				<string>DS Start</string>
+				<string>DS Select</string>
+				<string>Fast Forward</string>
+				<string>Pause / Resume</string>
+				<string>Reset Game</string>
+				<string>Save State</string>
+				<string>Load State</string>
+				<string>Switch Top / Bottom Screen</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Right Shoulder — RB / R1</string>
+			<key>Key</key>
+			<string>gamepad.rightShoulder</string>
+			<key>DefaultValue</key>
+			<string>default</string>
+			<key>Values</key>
+			<array>
+				<string>default</string>
+				<string>none</string>
+				<string>a</string>
+				<string>b</string>
+				<string>x</string>
+				<string>y</string>
+				<string>l</string>
+				<string>r</string>
+				<string>zl</string>
+				<string>zr</string>
+				<string>start</string>
+				<string>select</string>
+				<string>fastForward</string>
+				<string>pause</string>
+				<string>reset</string>
+				<string>saveState</string>
+				<string>loadState</string>
+				<string>switchScreen</string>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>Default</string>
+				<string>Unassigned</string>
+				<string>DS A</string>
+				<string>DS B</string>
+				<string>DS X</string>
+				<string>DS Y</string>
+				<string>DS L</string>
+				<string>DS R</string>
+				<string>3DS ZL</string>
+				<string>3DS ZR</string>
+				<string>DS Start</string>
+				<string>DS Select</string>
+				<string>Fast Forward</string>
+				<string>Pause / Resume</string>
+				<string>Reset Game</string>
+				<string>Save State</string>
+				<string>Load State</string>
+				<string>Switch Top / Bottom Screen</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Left Trigger — LT / L2</string>
+			<key>Key</key>
+			<string>gamepad.leftTrigger</string>
+			<key>DefaultValue</key>
+			<string>default</string>
+			<key>Values</key>
+			<array>
+				<string>default</string>
+				<string>none</string>
+				<string>a</string>
+				<string>b</string>
+				<string>x</string>
+				<string>y</string>
+				<string>l</string>
+				<string>r</string>
+				<string>zl</string>
+				<string>zr</string>
+				<string>start</string>
+				<string>select</string>
+				<string>fastForward</string>
+				<string>pause</string>
+				<string>reset</string>
+				<string>saveState</string>
+				<string>loadState</string>
+				<string>switchScreen</string>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>Default</string>
+				<string>Unassigned</string>
+				<string>DS A</string>
+				<string>DS B</string>
+				<string>DS X</string>
+				<string>DS Y</string>
+				<string>DS L</string>
+				<string>DS R</string>
+				<string>3DS ZL</string>
+				<string>3DS ZR</string>
+				<string>DS Start</string>
+				<string>DS Select</string>
+				<string>Fast Forward</string>
+				<string>Pause / Resume</string>
+				<string>Reset Game</string>
+				<string>Save State</string>
+				<string>Load State</string>
+				<string>Switch Top / Bottom Screen</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Right Trigger — RT / R2</string>
+			<key>Key</key>
+			<string>gamepad.rightTrigger</string>
+			<key>DefaultValue</key>
+			<string>default</string>
+			<key>Values</key>
+			<array>
+				<string>default</string>
+				<string>none</string>
+				<string>a</string>
+				<string>b</string>
+				<string>x</string>
+				<string>y</string>
+				<string>l</string>
+				<string>r</string>
+				<string>zl</string>
+				<string>zr</string>
+				<string>start</string>
+				<string>select</string>
+				<string>fastForward</string>
+				<string>pause</string>
+				<string>reset</string>
+				<string>saveState</string>
+				<string>loadState</string>
+				<string>switchScreen</string>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>Default</string>
+				<string>Unassigned</string>
+				<string>DS A</string>
+				<string>DS B</string>
+				<string>DS X</string>
+				<string>DS Y</string>
+				<string>DS L</string>
+				<string>DS R</string>
+				<string>3DS ZL</string>
+				<string>3DS ZR</string>
+				<string>DS Start</string>
+				<string>DS Select</string>
+				<string>Fast Forward</string>
+				<string>Pause / Resume</string>
+				<string>Reset Game</string>
+				<string>Save State</string>
+				<string>Load State</string>
+				<string>Switch Top / Bottom Screen</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Left Stick Click — L3</string>
+			<key>Key</key>
+			<string>gamepad.leftStick</string>
+			<key>DefaultValue</key>
+			<string>default</string>
+			<key>Values</key>
+			<array>
+				<string>default</string>
+				<string>none</string>
+				<string>a</string>
+				<string>b</string>
+				<string>x</string>
+				<string>y</string>
+				<string>l</string>
+				<string>r</string>
+				<string>zl</string>
+				<string>zr</string>
+				<string>start</string>
+				<string>select</string>
+				<string>fastForward</string>
+				<string>pause</string>
+				<string>reset</string>
+				<string>saveState</string>
+				<string>loadState</string>
+				<string>switchScreen</string>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>Default</string>
+				<string>Unassigned</string>
+				<string>DS A</string>
+				<string>DS B</string>
+				<string>DS X</string>
+				<string>DS Y</string>
+				<string>DS L</string>
+				<string>DS R</string>
+				<string>3DS ZL</string>
+				<string>3DS ZR</string>
+				<string>DS Start</string>
+				<string>DS Select</string>
+				<string>Fast Forward</string>
+				<string>Pause / Resume</string>
+				<string>Reset Game</string>
+				<string>Save State</string>
+				<string>Load State</string>
+				<string>Switch Top / Bottom Screen</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Right Stick Click — R3</string>
+			<key>Key</key>
+			<string>gamepad.rightStick</string>
+			<key>DefaultValue</key>
+			<string>default</string>
+			<key>Values</key>
+			<array>
+				<string>default</string>
+				<string>none</string>
+				<string>a</string>
+				<string>b</string>
+				<string>x</string>
+				<string>y</string>
+				<string>l</string>
+				<string>r</string>
+				<string>zl</string>
+				<string>zr</string>
+				<string>start</string>
+				<string>select</string>
+				<string>fastForward</string>
+				<string>pause</string>
+				<string>reset</string>
+				<string>saveState</string>
+				<string>loadState</string>
+				<string>switchScreen</string>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>Default</string>
+				<string>Unassigned</string>
+				<string>DS A</string>
+				<string>DS B</string>
+				<string>DS X</string>
+				<string>DS Y</string>
+				<string>DS L</string>
+				<string>DS R</string>
+				<string>3DS ZL</string>
+				<string>3DS ZR</string>
+				<string>DS Start</string>
+				<string>DS Select</string>
+				<string>Fast Forward</string>
+				<string>Pause / Resume</string>
+				<string>Reset Game</string>
+				<string>Save State</string>
+				<string>Load State</string>
+				<string>Switch Top / Bottom Screen</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Start / Menu / Options</string>
+			<key>Key</key>
+			<string>gamepad.menu</string>
+			<key>DefaultValue</key>
+			<string>default</string>
+			<key>Values</key>
+			<array>
+				<string>default</string>
+				<string>none</string>
+				<string>a</string>
+				<string>b</string>
+				<string>x</string>
+				<string>y</string>
+				<string>l</string>
+				<string>r</string>
+				<string>zl</string>
+				<string>zr</string>
+				<string>start</string>
+				<string>select</string>
+				<string>fastForward</string>
+				<string>pause</string>
+				<string>reset</string>
+				<string>saveState</string>
+				<string>loadState</string>
+				<string>switchScreen</string>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>Default</string>
+				<string>Unassigned</string>
+				<string>DS A</string>
+				<string>DS B</string>
+				<string>DS X</string>
+				<string>DS Y</string>
+				<string>DS L</string>
+				<string>DS R</string>
+				<string>3DS ZL</string>
+				<string>3DS ZR</string>
+				<string>DS Start</string>
+				<string>DS Select</string>
+				<string>Fast Forward</string>
+				<string>Pause / Resume</string>
+				<string>Reset Game</string>
+				<string>Save State</string>
+				<string>Load State</string>
+				<string>Switch Top / Bottom Screen</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Select / View / Share</string>
+			<key>Key</key>
+			<string>gamepad.options</string>
+			<key>DefaultValue</key>
+			<string>default</string>
+			<key>Values</key>
+			<array>
+				<string>default</string>
+				<string>none</string>
+				<string>a</string>
+				<string>b</string>
+				<string>x</string>
+				<string>y</string>
+				<string>l</string>
+				<string>r</string>
+				<string>zl</string>
+				<string>zr</string>
+				<string>start</string>
+				<string>select</string>
+				<string>fastForward</string>
+				<string>pause</string>
+				<string>reset</string>
+				<string>saveState</string>
+				<string>loadState</string>
+				<string>switchScreen</string>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>Default</string>
+				<string>Unassigned</string>
+				<string>DS A</string>
+				<string>DS B</string>
+				<string>DS X</string>
+				<string>DS Y</string>
+				<string>DS L</string>
+				<string>DS R</string>
+				<string>3DS ZL</string>
+				<string>3DS ZR</string>
+				<string>DS Start</string>
+				<string>DS Select</string>
+				<string>Fast Forward</string>
+				<string>Pause / Resume</string>
+				<string>Reset Game</string>
+				<string>Save State</string>
+				<string>Load State</string>
+				<string>Switch Top / Bottom Screen</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Apple Controller Diagram</string>
+			<key>FooterText</key>
+			<string>For Apple’s highlighted controller diagram, open Settings &gt; Remotes and Devices &gt; Bluetooth, select your controller, then add or select a custom profile. Apple profiles remap controller inputs before this app’s DS button assignments.</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Remote Button Mapping</string>
+			<key>FooterText</key>
+			<string>Applies to the TV remote only; Xbox/PlayStation mappings stay unchanged. Direction buttons always control the DS D-pad. Transport commands act as short game-button presses. Home/TV, volume and Siri stay system controls. EE remotes may deliver only some media commands.</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Extra Media Buttons</string>
+			<key>FooterText</key>
+			<string>Enables additional third-party remote media events for Rewind and Fast Forward. Can add about 2 seconds of audio delay with HomePod/AirPlay. Leave off for responsive game audio. D-pad, center, Back/Menu and normal Play/Pause controls remain available.</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Enable Extra Media Buttons</string>
+			<key>Key</key>
+			<string>remote.extraMediaButtons</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Button Assignments</string>
+			<key>FooterText</key>
+			<string>Rewind/Fast Forward assignments require Extra Media Buttons. Some EE remote buttons may not be delivered by tvOS.</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Center / Select</string>
+			<key>Key</key>
+			<string>remote.center</string>
+			<key>DefaultValue</key>
+			<string>a</string>
+			<key>Values</key>
+			<array>
+				<string>none</string>
+				<string>a</string>
+				<string>b</string>
+				<string>x</string>
+				<string>y</string>
+				<string>l</string>
+				<string>r</string>
+				<string>zl</string>
+				<string>zr</string>
+				<string>start</string>
+				<string>select</string>
+				<string>fastForward</string>
+				<string>pause</string>
+				<string>reset</string>
+				<string>saveState</string>
+				<string>loadState</string>
+				<string>switchScreen</string>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>Unassigned</string>
+				<string>DS A</string>
+				<string>DS B</string>
+				<string>DS X</string>
+				<string>DS Y</string>
+				<string>DS L</string>
+				<string>DS R</string>
+				<string>3DS ZL</string>
+				<string>3DS ZR</string>
+				<string>DS Start</string>
+				<string>DS Select</string>
+				<string>Fast Forward</string>
+				<string>Pause / Resume</string>
+				<string>Reset Game</string>
+				<string>Save State</string>
+				<string>Load State</string>
+				<string>Switch Top / Bottom Screen</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Back / Menu</string>
+			<key>Key</key>
+			<string>remote.menu</string>
+			<key>DefaultValue</key>
+			<string>start</string>
+			<key>Values</key>
+			<array>
+				<string>none</string>
+				<string>a</string>
+				<string>b</string>
+				<string>x</string>
+				<string>y</string>
+				<string>l</string>
+				<string>r</string>
+				<string>zl</string>
+				<string>zr</string>
+				<string>start</string>
+				<string>select</string>
+				<string>fastForward</string>
+				<string>pause</string>
+				<string>reset</string>
+				<string>saveState</string>
+				<string>loadState</string>
+				<string>switchScreen</string>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>Unassigned</string>
+				<string>DS A</string>
+				<string>DS B</string>
+				<string>DS X</string>
+				<string>DS Y</string>
+				<string>DS L</string>
+				<string>DS R</string>
+				<string>3DS ZL</string>
+				<string>3DS ZR</string>
+				<string>DS Start</string>
+				<string>DS Select</string>
+				<string>Fast Forward</string>
+				<string>Pause / Resume</string>
+				<string>Reset Game</string>
+				<string>Save State</string>
+				<string>Load State</string>
+				<string>Switch Top / Bottom Screen</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Play / Pause</string>
+			<key>Key</key>
+			<string>remote.playPause</string>
+			<key>DefaultValue</key>
+			<string>b</string>
+			<key>Values</key>
+			<array>
+				<string>none</string>
+				<string>a</string>
+				<string>b</string>
+				<string>x</string>
+				<string>y</string>
+				<string>l</string>
+				<string>r</string>
+				<string>zl</string>
+				<string>zr</string>
+				<string>start</string>
+				<string>select</string>
+				<string>fastForward</string>
+				<string>pause</string>
+				<string>reset</string>
+				<string>saveState</string>
+				<string>loadState</string>
+				<string>switchScreen</string>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>Unassigned</string>
+				<string>DS A</string>
+				<string>DS B</string>
+				<string>DS X</string>
+				<string>DS Y</string>
+				<string>DS L</string>
+				<string>DS R</string>
+				<string>3DS ZL</string>
+				<string>3DS ZR</string>
+				<string>DS Start</string>
+				<string>DS Select</string>
+				<string>Fast Forward</string>
+				<string>Pause / Resume</string>
+				<string>Reset Game</string>
+				<string>Save State</string>
+				<string>Load State</string>
+				<string>Switch Top / Bottom Screen</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Rewind</string>
+			<key>Key</key>
+			<string>remote.rewind</string>
+			<key>DefaultValue</key>
+			<string>select</string>
+			<key>Values</key>
+			<array>
+				<string>none</string>
+				<string>a</string>
+				<string>b</string>
+				<string>x</string>
+				<string>y</string>
+				<string>l</string>
+				<string>r</string>
+				<string>zl</string>
+				<string>zr</string>
+				<string>start</string>
+				<string>select</string>
+				<string>fastForward</string>
+				<string>pause</string>
+				<string>reset</string>
+				<string>saveState</string>
+				<string>loadState</string>
+				<string>switchScreen</string>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>Unassigned</string>
+				<string>DS A</string>
+				<string>DS B</string>
+				<string>DS X</string>
+				<string>DS Y</string>
+				<string>DS L</string>
+				<string>DS R</string>
+				<string>3DS ZL</string>
+				<string>3DS ZR</string>
+				<string>DS Start</string>
+				<string>DS Select</string>
+				<string>Fast Forward</string>
+				<string>Pause / Resume</string>
+				<string>Reset Game</string>
+				<string>Save State</string>
+				<string>Load State</string>
+				<string>Switch Top / Bottom Screen</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Fast Forward</string>
+			<key>Key</key>
+			<string>remote.fastForward</string>
+			<key>DefaultValue</key>
+			<string>x</string>
+			<key>Values</key>
+			<array>
+				<string>none</string>
+				<string>a</string>
+				<string>b</string>
+				<string>x</string>
+				<string>y</string>
+				<string>l</string>
+				<string>r</string>
+				<string>zl</string>
+				<string>zr</string>
+				<string>start</string>
+				<string>select</string>
+				<string>fastForward</string>
+				<string>pause</string>
+				<string>reset</string>
+				<string>saveState</string>
+				<string>loadState</string>
+				<string>switchScreen</string>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>Unassigned</string>
+				<string>DS A</string>
+				<string>DS B</string>
+				<string>DS X</string>
+				<string>DS Y</string>
+				<string>DS L</string>
+				<string>DS R</string>
+				<string>3DS ZL</string>
+				<string>3DS ZR</string>
+				<string>DS Start</string>
+				<string>DS Select</string>
+				<string>Fast Forward</string>
+				<string>Pause / Resume</string>
+				<string>Reset Game</string>
+				<string>Save State</string>
+				<string>Load State</string>
+				<string>Switch Top / Bottom Screen</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>

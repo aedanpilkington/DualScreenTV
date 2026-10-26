@@ -1,0 +1,35 @@
+cmake_minimum_required(VERSION 3.24)
+project(DSTVAzaharMetal LANGUAGES CXX OBJCXX)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_OBJCXX_STANDARD 20)
+if(NOT AZAHAR_SOURCE OR NOT SPIRV_CROSS_SOURCE)
+    message(FATAL_ERROR "Provide pinned AZAHAR_SOURCE and SPIRV_CROSS_SOURCE")
+endif()
+set(SPIRV_CROSS_CLI OFF CACHE BOOL "" FORCE)
+set(SPIRV_CROSS_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
+set(SPIRV_CROSS_ENABLE_GLSL ON CACHE BOOL "" FORCE)
+set(SPIRV_CROSS_ENABLE_HLSL OFF CACHE BOOL "" FORCE)
+set(SPIRV_CROSS_ENABLE_CPP OFF CACHE BOOL "" FORCE)
+set(SPIRV_CROSS_ENABLE_REFLECT OFF CACHE BOOL "" FORCE)
+set(SPIRV_CROSS_ENABLE_C_API OFF CACHE BOOL "" FORCE)
+add_subdirectory("${SPIRV_CROSS_SOURCE}" cross)
+add_library(SPIRV-Headers INTERFACE)
+add_library(SPIRV-Headers::SPIRV-Headers ALIAS SPIRV-Headers)
+target_include_directories(SPIRV-Headers INTERFACE "${AZAHAR_SOURCE}/externals/spirv-headers/include")
+add_subdirectory("${AZAHAR_SOURCE}/externals/sirit" sirit)
+add_subdirectory("${AZAHAR_SOURCE}/externals/fmt" fmt)
+add_library(dstv_azahar_metal STATIC
+    MetalShaderCompiler.cpp PicaShaderIR.cpp MetalDraw.mm
+    "${AZAHAR_SOURCE}/src/video_core/shader/generator/pica_fs_config.cpp"
+    "${AZAHAR_SOURCE}/src/video_core/shader/generator/spv_fs_shader_gen.cpp")
+target_include_directories(dstv_azahar_metal PUBLIC . "${AZAHAR_SOURCE}/src"
+    "${AZAHAR_SOURCE}/externals/boost" "${AZAHAR_SOURCE}/externals/xxHash")
+target_link_libraries(dstv_azahar_metal PUBLIC sirit fmt::fmt spirv-cross-msl
+    "-framework Foundation" "-framework Metal")
+set_source_files_properties(MetalDraw.mm PROPERTIES COMPILE_FLAGS "-fobjc-arc")
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "tvOS")
+    add_executable(metal-pica-tests MetalTests.mm
+        "${AZAHAR_SOURCE}/src/video_core/renderer_software/sw_texturing.cpp")
+    set_source_files_properties(MetalTests.mm PROPERTIES COMPILE_FLAGS "-fobjc-arc")
+    target_link_libraries(metal-pica-tests PRIVATE dstv_azahar_metal)
+endif()

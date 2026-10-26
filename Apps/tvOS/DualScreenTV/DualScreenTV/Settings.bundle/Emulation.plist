@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PreferenceSpecifiers</key>
+	<array>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Emulation Speed</string>
+			<key>FooterText</key>
+			<string>Applies to DS and 3DS. Speeds other than 1× mute audio. Fast Forward can be assigned in Controller Settings. Hold is default; toggle suits remote buttons that send taps. Unlimited uses bounded work and remains hardware-limited.</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Normal Speed</string>
+			<key>Key</key>
+			<string>emulation.speed</string>
+			<key>DefaultValue</key>
+			<real>1.0</real>
+			<key>Values</key>
+			<array>
+				<real>0.5</real>
+				<real>1.0</real>
+				<real>1.5</real>
+				<real>2.0</real>
+				<real>3.0</real>
+				<real>4.0</real>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>0.5×</string>
+				<string>1×</string>
+				<string>1.5×</string>
+				<string>2×</string>
+				<string>3×</string>
+				<string>4×</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Fast Forward Speed</string>
+			<key>Key</key>
+			<string>emulation.fastForwardSpeed</string>
+			<key>DefaultValue</key>
+			<real>2.0</real>
+			<key>Values</key>
+			<array>
+				<real>2.0</real>
+				<real>3.0</real>
+				<real>4.0</real>
+				<real>0.0</real>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>2×</string>
+				<string>3×</string>
+				<string>4×</string>
+				<string>Unlimited</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Toggle Fast Forward (Instead of Hold)</string>
+			<key>Key</key>
+			<string>emulation.toggleFastForward</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+	</array>
+	<key>StringsTable</key>
+	<string>Root</string>
+</dict>
+</plist>

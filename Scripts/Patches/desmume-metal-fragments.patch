@@ -1,0 +1,257 @@
+diff --git a/desmume/src/frontend/libretro/Makefile.libretro b/desmume/src/frontend/libretro/Makefile.libretro
+index 9559212..f9e6859 100644
+--- a/desmume/src/frontend/libretro/Makefile.libretro
++++ b/desmume/src/frontend/libretro/Makefile.libretro
+@@ -256,10 +256,10 @@ else ifeq ($(platform), tvos-arm64)
+    CC = clang -arch arm64 -isysroot $(IOSSDK)
+    CXX = clang++ -arch arm64 -isysroot $(IOSSDK)
+ 
+-   CC       += -mappletvos-version-min=11.0
+-   CXX      += -mappletvos-version-min=11.0
+-   CFLAGS   += -mappletvos-version-min=11.0
+-   CXXFLAGS += -mappletvos-version-min=11.0
++   CC       += -mappletvos-version-min=17.0
++   CXX      += -mappletvos-version-min=17.0
++   CFLAGS   += -mappletvos-version-min=17.0
++   CXXFLAGS += -mappletvos-version-min=17.0
+ 
+ # Theos iOS
+ else ifeq ($(platform), theos_ios)
+@@ -644,7 +644,7 @@ COMMON_DEFINES = $(INCFLAGS) $(INCDIR) $(INCFLAGS_PLATFORM)
+ 
+ 
+ OBJECTS     = $(SOURCES_CXX:.cpp=.o) $(SOURCES_C:.c=.o)
+-CXXFLAGS    += $(fpic) $(COMMON_DEFINES)
++CXXFLAGS    += $(fpic) $(COMMON_DEFINES) $(EXTRA_CPPFLAGS)
+ CFLAGS      += $(fpic) $(COMMON_DEFINES)
+ 
+ ifeq ($(NO_GCC), 1)
+diff --git a/desmume/src/rasterize.cpp b/desmume/src/rasterize.cpp
+index e42ef25..04d6f83 100644
+--- a/desmume/src/rasterize.cpp
++++ b/desmume/src/rasterize.cpp
+@@ -36,6 +36,9 @@
+ // * Golden Sun: Dark Dawn -- shadow under the main character
+ 
+ #include "rasterize.h"
++#ifdef DSTV_METAL
++#include "MetalRasterizer.h"
++#endif
+ 
+ #include <algorithm>
+ #include <assert.h>
+@@ -755,6 +758,14 @@ FORCEINLINE void RasterizerUnit<RENDERER>::_drawscanline(const POLYGON_ATTR poly
+ 		width = framebufferWidth - x;
+ 	}
+ 	
++#ifdef DSTV_METAL
++    if (RENDERER && DSTVMetalRecording()) {
++        if (width > 0) DSTVMetalSpan(pLeft->Y, x, width, this->_polynum, polyAttr.value,
++            (ISFRONTFACING ? 1 : 0) | (ISSHADOWPOLYGON ? 2 : 0) | (isTranslucent ? 4 : 0),
++            coord, coord_dx, color, color_dx);
++        if (!DSTVMetalReference()) return;
++    }
++#endif
+ 	while (width-- > 0)
+ 	{
+ 		this->_pixel<ISFRONTFACING, ISSHADOWPOLYGON>(polyAttr, isTranslucent, adr, dstColor[adr], color[0], color[1], color[2], coord[0], coord[1], coord[2], 1.0f/coord[3]);
+@@ -1006,6 +1017,16 @@ FORCEINLINE void RasterizerUnit<RENDERER>::_drawscanline_SSE2(const POLYGON_ATTR
+ 		width = framebufferWidth - x;
+ 	}
+ 	
++#ifdef DSTV_METAL
++    if (RENDERER && DSTVMetalRecording()) {
++        CACHE_ALIGN float c[4], d[4], rgb[4], rgbd[4];
++        _mm_store_ps(c, coord); _mm_store_ps(d, coord_dx);
++        _mm_store_ps(rgb, color); _mm_store_ps(rgbd, color_dx);
++        if (width > 0) DSTVMetalSpan(pLeft->Y, x, width, this->_polynum, polyAttr.value,
++            (ISFRONTFACING ? 1 : 0) | (ISSHADOWPOLYGON ? 2 : 0) | (isTranslucent ? 4 : 0), c,d,rgb,rgbd);
++        if (!DSTVMetalReference()) return;
++    }
++#endif
+ 	CACHE_ALIGN float coord_s[4];
+ 	
+ 	while (width-- > 0)
+@@ -1832,12 +1853,18 @@ SoftRasterizerRenderer::SoftRasterizerRenderer()
+ 
+ SoftRasterizerRenderer::~SoftRasterizerRenderer()
+ {
++#ifdef DSTV_METAL
++    DSTVMetalWait();
++#endif
+ 	for (size_t i = 0; i < this->_threadCount; i++)
+ 	{
+ 		this->_task[i].finish();
+ 		this->_task[i].shutdown();
+ 	}
+ 	
++#ifdef DSTV_METAL
++    DSTVMetalRelease();
++#endif
+ 	delete[] this->_task;
+ 	this->_task = NULL;
+ 	
+@@ -2015,8 +2042,17 @@ Render3DError SoftRasterizerRenderer::ApplyRenderingSettings(const GFX3D_State &
+ 	return Render3D::ApplyRenderingSettings(renderState);
+ }
+ 
++#ifdef DSTV_METAL
++void SoftRasterizerRenderer::DSTVMetalWaitGeometry() {
++    for (size_t i=0;i<this->_threadCount;++i) this->_task[i].finish();
++}
++#endif
++
+ Render3DError SoftRasterizerRenderer::BeginRender(const GFX3D &engine)
+ {
++#ifdef DSTV_METAL
++    DSTVMetalWait();
++#endif
+ 	// Force all threads to finish before rendering with new data
+ 	for (size_t i = 0; i < this->_threadCount; i++)
+ 	{
+@@ -2069,6 +2105,9 @@ Render3DError SoftRasterizerRenderer::BeginRender(const GFX3D &engine)
+ 
+ Render3DError SoftRasterizerRenderer::RenderGeometry(const GFX3D_State &renderState, const POLYLIST *polyList, const INDEXLIST *indexList)
+ {
++#ifdef DSTV_METAL
++    DSTVMetalBegin(this);
++#endif
+ 	// Render the geometry
+ 	if (this->_threadCount > 0)
+ 	{
+@@ -2087,6 +2126,9 @@ Render3DError SoftRasterizerRenderer::RenderGeometry(const GFX3D_State &renderSt
+ 			}
+ 		}
+ 		
++#ifdef DSTV_METAL
++        DSTVMetalSchedule(this, [](SoftRasterizerRenderer *r) { r->DSTVMetalWaitGeometry(); });
++#endif
+ 		this->_renderGeometryNeedsFinish = true;
+ 	}
+ 	else
+@@ -2100,6 +2142,9 @@ Render3DError SoftRasterizerRenderer::RenderGeometry(const GFX3D_State &renderSt
+ 			SoftRasterizer_RunRasterizerUnit<false>(&this->_rasterizerUnit[0]);
+ 		}
+ 		
++#ifdef DSTV_METAL
++        if (!DSTVMetalFinish(this)) { this->ClearFramebuffer(renderState); return this->RenderGeometry(renderState, polyList, indexList); }
++#endif
+ 		this->_renderGeometryNeedsFinish = false;
+ 		texCache.Evict(); // Since we're finishing geometry rendering here and now, also check the texture cache now.
+ 	}
+@@ -2381,6 +2426,9 @@ Render3DError SoftRasterizerRenderer::ClearUsingValues(const FragmentColor &clea
+ 
+ Render3DError SoftRasterizerRenderer::Reset()
+ {
++#ifdef DSTV_METAL
++    DSTVMetalWait();
++#endif
+ 	if (this->_threadCount > 0)
+ 	{
+ 		for (size_t i = 0; i < this->_threadCount; i++)
+@@ -2432,7 +2480,11 @@ Render3DError SoftRasterizerRenderer::EndRender(const u64 frameCount)
+ 	// If we're not multithreaded, then just do the post-processing steps now.
+ 	if (!this->_renderGeometryNeedsFinish)
+ 	{
+-		if (this->_enableEdgeMark || this->_enableFog)
++		if (
++#ifdef DSTV_METAL
++            !DSTVMetalPostProcessed() &&
++#endif
++            (this->_enableEdgeMark || this->_enableFog))
+ 		{
+ 			this->_threadPostprocessParam[0].enableEdgeMarking = this->_enableEdgeMark;
+ 			this->_threadPostprocessParam[0].enableFog = this->_enableFog;
+@@ -2455,6 +2507,9 @@ Render3DError SoftRasterizerRenderer::RenderFinish()
+ 	
+ 	if (this->_renderGeometryNeedsFinish)
+ 	{
++#ifdef DSTV_METAL
++        const bool metalOkay=DSTVMetalWait();
++#endif
+ 		// Allow for the geometry rendering to finish.
+ 		this->_renderGeometryNeedsFinish = false;
+ 		for (size_t i = 0; i < this->_threadCount; i++)
+@@ -2462,11 +2517,23 @@ Render3DError SoftRasterizerRenderer::RenderFinish()
+ 			this->_task[i].finish();
+ 		}
+ 		
++#ifdef DSTV_METAL
++        if (!metalOkay) {
++            this->ClearFramebuffer(*this->currentRenderState);
++            this->RenderGeometry(*this->currentRenderState, gfx3d.polylist, &gfx3d.indexlist);
++            for (size_t i = 0; i < this->_threadCount; ++i) this->_task[i].finish();
++            this->_renderGeometryNeedsFinish = false;
++        }
++#endif
+ 		// Now that geometry rendering is finished on all threads, check the texture cache.
+ 		texCache.Evict();
+ 		
+ 		// Do multithreaded post-processing.
+-		if (this->_enableEdgeMark || this->_enableFog)
++		if (
++#ifdef DSTV_METAL
++            !DSTVMetalPostProcessed() &&
++#endif
++            (this->_enableEdgeMark || this->_enableFog))
+ 		{
+ 			for (size_t i = 0; i < this->_threadCount; i++)
+ 			{
+@@ -2508,6 +2575,9 @@ Render3DError SoftRasterizerRenderer::RenderFlush(bool willFlushBuffer32, bool w
+ 
+ Render3DError SoftRasterizerRenderer::SetFramebufferSize(size_t w, size_t h)
+ {
++#ifdef DSTV_METAL
++    DSTVMetalWait();
++#endif
+ 	Render3DError error = Render3D::SetFramebufferSize(w, h);
+ 	if (error != RENDER3DERROR_NOERR)
+ 	{
+@@ -2616,6 +2686,9 @@ Render3DError SoftRasterizer_SIMD<SIMDBYTES>::ClearUsingValues(const FragmentCol
+ template <size_t SIMDBYTES>
+ Render3DError SoftRasterizer_SIMD<SIMDBYTES>::SetFramebufferSize(size_t w, size_t h)
+ {
++#ifdef DSTV_METAL
++    DSTVMetalWait();
++#endif
+ 	Render3DError error = Render3D_SIMD<SIMDBYTES>::SetFramebufferSize(w, h);
+ 	if (error != RENDER3DERROR_NOERR)
+ 	{
+diff --git a/desmume/src/rasterize.h b/desmume/src/rasterize.h
+index becafc0..6ee7ed8 100644
+--- a/desmume/src/rasterize.h
++++ b/desmume/src/rasterize.h
+@@ -179,6 +179,12 @@ protected:
+ 	virtual Render3DError ClearUsingValues(const FragmentColor &clearColor6665, const FragmentAttributes &clearAttributes);
+ 	
+ public:
++#ifdef DSTV_METAL
++    void DSTVMetalWaitGeometry();
++    const u8 *DSTVMetalFogTable() const { return fogTable; }
++    bool DSTVMetalEdgeEnabled() const { return _enableEdgeMark; }
++    bool DSTVMetalFogEnabled() const { return _enableFog; }
++#endif
+ 	int _debug_drawClippedUserPoly;
+ 	FragmentColor toonColor32LUT[32];
+ 	FragmentAttributesBuffer *_framebufferAttributes;
+--- a/desmume/src/frontend/libretro/libretro.cpp
++++ b/desmume/src/frontend/libretro/libretro.cpp
+@@ -300,10 +300,18 @@
+ }
+ 
+ #define CONVERT_COLOR(color) (((color & 0x001f) << 11) | ((color & 0x03e0) << 1) | ((color & 0x0200) >> 4) | ((color & 0x7c00) >> 10))
++#ifdef DSTV_METAL
++#include "DSColorConvert.h"
++#endif
++
+ void conv_0rgb1555_rb_swapped_rgb565(void * __restrict output_, const void * __restrict input_,
+       int width, int height,
+       int out_stride, int in_stride)
+ {
++#ifdef DSTV_METAL
++   for (int y=0;y<height;++y) DSTVConvert1555Row((uint16_t*)output_+y*out_stride,(const uint16_t*)input_+y*in_stride,width);
++   return;
++#endif
+    int h, max_width;
+    const uint16_t *input   = (const uint16_t*)input_;
+    uint16_t *output        = (uint16_t*)output_;

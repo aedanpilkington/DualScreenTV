@@ -1,0 +1,6 @@
+*.sh text eol=lf
+*.py text eol=lf
+*.swift text eol=lf
+*.patch -whitespace
+*LICENSE* -whitespace
+*Licenses/* -whitespace

@@ -1,0 +1,13 @@
+--- a/src/citra_libretro/core_settings.cpp
++++ b/src/citra_libretro/core_settings.cpp
+@@ -1149,10 +1149,6 @@
+     ParseLayoutOptions();
+     ParseStorageOptions();
+     ParseInputOptions();
+-    if (Settings::values.graphics_api.GetValue() == Settings::GraphicsAPI::Metal ||
+-        Settings::values.graphics_api.GetValue() == Settings::GraphicsAPI::MetalHybrid) {
+-        Settings::values.resolution_factor = 1;
+-    }
+ }
+ 
+ } // namespace LibRetro

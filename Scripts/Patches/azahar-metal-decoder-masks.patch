@@ -1,0 +1,134 @@
+--- a/src/core/arm/dyncom/arm_dyncom_dec.cpp
++++ b/src/core/arm/dyncom/arm_dyncom_dec.cpp
+@@ -32,7 +32,7 @@
+ } // namespace
+ 
+ // clang-format off
+-const InstructionSetEncodingItem arm_instruction[] = {
++constexpr InstructionSetEncodingItem arm_instruction[] = {
+     { "vmla", 5, ARMVFP2,      { 23, 27, 0x1C, 20, 21, 0x0, 9, 11, 0x5, 6, 6, 0, 4, 4, 0 }},
+     { "vmls", 5, ARMVFP2,      { 23, 27, 0x1C, 20, 21, 0x0, 9, 11, 0x5, 6, 6, 1, 4, 4, 0 }},
+     { "vnmla", 5, ARMVFP2,     { 23, 27, 0x1C, 20, 21, 0x1, 9, 11, 0x5, 6, 6, 1, 4, 4, 0 }},
+@@ -234,7 +234,7 @@
+ };
+ 
+ 
+-const InstructionSetEncodingItem arm_exclusion_code[] = {
++constexpr InstructionSetEncodingItem arm_exclusion_code[] = {
+     { "vmla", 0, ARMVFP2,      { 0 }},
+     { "vmls", 0, ARMVFP2,      { 0 }},
+     { "vnmla", 0, ARMVFP2,     { 0 }},
+@@ -452,64 +452,58 @@
+         *idx = cached.index_plus_one - 1;
+         return ARMDecodeStatus::SUCCESS;
+     }
+-    int n = 0;
+-    int base = 0;
+-    int instr_slots = sizeof(arm_instruction) / sizeof(InstructionSetEncodingItem);
+-    ARMDecodeStatus ret = ARMDecodeStatus::FAILURE;
+-
+-    for (int i = 0; i < instr_slots; i++) {
+-        n = arm_instruction[i].attribute_value;
+-        base = 0;
+-
+-        // 3DS has no VFP3 support
+-        if (arm_instruction[i].version == ARMVFP3)
+-            continue;
+-
+-        while (n) {
+-            if (arm_instruction[i].content[base + 1] == 31 &&
+-                arm_instruction[i].content[base] == 0) {
+-                // clrex
+-                if (instr != arm_instruction[i].content[base + 2]) {
+-                    break;
+-                }
+-            } else if (BITS(instr, arm_instruction[i].content[base],
+-                            arm_instruction[i].content[base + 1]) !=
+-                       arm_instruction[i].content[base + 2]) {
+-                break;
++    // Collapse each upstream conjunction into an exact mask/value predicate.
++    // Keep instruction ordering and exclusion rules; never approximate operands.
++    struct Predicate { u32 mask=0,value=0; bool possible=true; };
++    struct Rule { Predicate include,exclude; bool has_exclusion=false; };
++    static constexpr auto rules=[] {
++        std::array<Rule,sizeof(arm_instruction)/sizeof(arm_instruction[0])> result{};
++        auto predicate=[](const InstructionSetEncodingItem& item) {
++            Predicate p;
++            for(int i=0;i<item.attribute_value;++i) {
++                const unsigned low=item.content[i*3],high=item.content[i*3+1],width=high-low+1;
++                const uint64_t limit=uint64_t(1)<<width;
++                const auto expected=item.content[i*3+2];
++                if(expected>=limit) {p.possible=false;continue;}
++                const u32 mask=u32((limit-1)<<low),value=u32(uint64_t(expected)<<low);
++                if((p.value^value)&p.mask&mask)p.possible=false;
++                p.mask|=mask;p.value|=value;
+             }
+-            base += 3;
+-            n--;
++            return p;
++        };
++        for(unsigned i=0;i<result.size();++i) {
++            result[i].include=predicate(arm_instruction[i]);
++            if(arm_instruction[i].version==ARMVFP3)result[i].include.possible=false;
++            result[i].exclude=predicate(arm_exclusion_code[i]);
++            result[i].has_exclusion=arm_exclusion_code[i].attribute_value!=0;
+         }
+-
+-        // All conditions are satisfied.
+-        if (n == 0)
+-            ret = ARMDecodeStatus::SUCCESS;
+-
+-        if (ret == ARMDecodeStatus::SUCCESS) {
+-            n = arm_exclusion_code[i].attribute_value;
+-            if (n != 0) {
+-                base = 0;
+-                while (n) {
+-                    if (BITS(instr, arm_exclusion_code[i].content[base],
+-                             arm_exclusion_code[i].content[base + 1]) !=
+-                        arm_exclusion_code[i].content[base + 2]) {
+-                        break;
+-                    }
+-                    base += 3;
+-                    n--;
+-                }
+-
+-                // All conditions are satisfied.
+-                if (n == 0)
+-                    ret = ARMDecodeStatus::FAILURE;
++        return result;
++    }();
++    // Index only bits already constrained by the upstream predicates. Every
++    // bucket retains original table order and still checks the complete rule.
++    // Ordinary loads/adds need not scan all preceding VFP/coproc encodings.
++    struct Bucket { std::array<uint16_t,rules.size()> indices{}; unsigned count=0; };
++    static constexpr auto buckets=[] {
++        std::array<Bucket,64> result{};
++        constexpr u32 selected=0x0f000030u;
++        for(unsigned key=0;key<64;++key) {
++            const u32 word=((key&15)<<24)|((key>>4)<<4);
++            for(unsigned i=0;i<rules.size();++i)if(rules[i].include.possible &&
++                ((word^rules[i].include.value)&rules[i].include.mask&selected)==0) {
++                auto& bucket=result[key];bucket.indices[bucket.count++]=uint16_t(i);
+             }
+         }
+-
+-        if (ret == ARMDecodeStatus::SUCCESS) {
+-            *idx = i;
+-            cached = {instr, i + 1};
+-            return ret;
+-        }
++        return result;
++    }();
++    const auto& bucket=buckets[((instr>>24)&15)|(((instr>>4)&3)<<4)];
++    for(unsigned entry=0;entry<bucket.count;++entry) {
++        const auto i=bucket.indices[entry];
++        const auto& rule=rules[i];
++        if(!rule.include.possible || (instr&rule.include.mask)!=rule.include.value)continue;
++        if(rule.has_exclusion && rule.exclude.possible && (instr&rule.exclude.mask)==rule.exclude.value)continue;
++        *idx=int(i);
++        cached={instr,int(i)+1};
++        return ARMDecodeStatus::SUCCESS;
+     }
+-    return ret;
++    return ARMDecodeStatus::FAILURE;
+ }

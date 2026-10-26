@@ -1,0 +1,199 @@
+diff --git a/Common/ExceptionHandlerSetup.cpp b/Common/ExceptionHandlerSetup.cpp
+index fa2b579..5aaff59 100644
+--- a/Common/ExceptionHandlerSetup.cpp
++++ b/Common/ExceptionHandlerSetup.cpp
+@@ -54,7 +54,7 @@ void SetupCRT(bool suppressDialogs) {
+ #endif
+ }
+ 
+-#ifdef MACHINE_CONTEXT_SUPPORTED
++#if defined(MACHINE_CONTEXT_SUPPORTED) && !defined(DSTV_TVOS)
+ 
+ // We cannot handle exceptions in UWP builds. Bleh.
+ #if PPSSPP_PLATFORM(WINDOWS) && !PPSSPP_PLATFORM(UWP)
+diff --git a/Common/File/FileUtil.cpp b/Common/File/FileUtil.cpp
+index 0ef7daa..7ba8dcc 100644
+--- a/Common/File/FileUtil.cpp
++++ b/Common/File/FileUtil.cpp
+@@ -1225,7 +1225,11 @@ bool OpenFileInEditor(const Path &fileName) {
+ #endif
+ 	iniFile.append(fileName.ToString());
+ 	NOTICE_LOG(Log::Boot, "Launching %s", iniFile.c_str());
+-	int retval = system(iniFile.c_str());
++	#if defined(DSTV_TVOS)
++    int retval = -1; // tvOS does not launch external commands.
++#else
++    int retval = system(iniFile.c_str());
++#endif
+ 	if (retval != 0) {
+ 		ERROR_LOG(Log::IO, "Failed to launch ini file");
+ 	}
+diff --git a/Common/GPU/Vulkan/VulkanQueueRunner.cpp b/Common/GPU/Vulkan/VulkanQueueRunner.cpp
+index ee20007..e5e5ef3 100644
+--- a/Common/GPU/Vulkan/VulkanQueueRunner.cpp
++++ b/Common/GPU/Vulkan/VulkanQueueRunner.cpp
+@@ -99,6 +99,7 @@ bool VulkanQueueRunner::InitBackbufferFramebuffers(int width, int height, FrameD
+ 		res = vkCreateFramebuffer(vulkan_->GetDevice(), &fb_info, nullptr, &framebuffers_[i]);
+ 		_dbg_assert_(res == VK_SUCCESS);
+ 		if (res != VK_SUCCESS) {
++			ERROR_LOG(Log::G3D, "Backbuffer creation failed: %d (%dx%d)", res, width, height);
+ 			framebuffers_.clear();
+ 			return false;
+ 		}
+@@ -134,8 +135,10 @@ bool VulkanQueueRunner::InitDepthStencilBuffer(VkCommandBuffer cmd, VulkanBarrie
+ 
+ 	VkResult res = vmaCreateImage(vulkan_->Allocator(), &image_info, &allocCreateInfo, &depth_.image, &depth_.alloc, &allocInfo);
+ 	_dbg_assert_(res == VK_SUCCESS);
+-	if (res != VK_SUCCESS)
++	if (res != VK_SUCCESS) {
++        ERROR_LOG(Log::G3D, "Depth setup failed: %d format=%d extent=%u,%u", res, depth_format, image_info.extent.width, image_info.extent.height);
+ 		return false;
++    }
+ 
+ 	vulkan_->SetDebugName(depth_.image, VK_OBJECT_TYPE_IMAGE, "BackbufferDepth");
+ 
+@@ -170,8 +173,10 @@ bool VulkanQueueRunner::InitDepthStencilBuffer(VkCommandBuffer cmd, VulkanBarrie
+ 	res = vkCreateImageView(device, &depth_view_info, NULL, &depth_.view);
+ 	vulkan_->SetDebugName(depth_.view, VK_OBJECT_TYPE_IMAGE_VIEW, "depth_stencil_backbuffer");
+ 	_dbg_assert_(res == VK_SUCCESS);
+-	if (res != VK_SUCCESS)
++	if (res != VK_SUCCESS) {
++        ERROR_LOG(Log::G3D, "Depth setup failed: %d format=%d extent=%u,%u", res, depth_format, image_info.extent.width, image_info.extent.height);
+ 		return false;
++    }
+ 
+ 	return true;
+ }
+diff --git a/Common/GPU/Vulkan/VulkanRenderManager.cpp b/Common/GPU/Vulkan/VulkanRenderManager.cpp
+index 77e8493..a6bd6ef 100644
+--- a/Common/GPU/Vulkan/VulkanRenderManager.cpp
++++ b/Common/GPU/Vulkan/VulkanRenderManager.cpp
+@@ -100,7 +100,12 @@ bool VKRGraphicsPipeline::Create(VulkanContext *vulkan, VkRenderPass compatibleR
+ 	inputAssembly.primitiveRestartEnable = VK_FALSE;
+ 
+ #if PPSSPP_PLATFORM(MAC) || PPSSPP_PLATFORM(IOS)
++	#if defined(DSTV_TVOS)
++    // Offscreen tvOS uses MoltenVK without a Metal window surface.
++    {
++#else
+ 	if (vulkan->GetWindowSystem() == WindowSystem::WINDOWSYSTEM_METAL_EXT) {
++#endif
+ 		if (desc->topology == VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP ||
+ 		    desc->topology == VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN ||
+ 			desc->topology == VK_PRIMITIVE_TOPOLOGY_LINE_STRIP) {
+diff --git a/libretro/CMakeLists.txt b/libretro/CMakeLists.txt
+index 8f972d0..49ca23f 100644
+--- a/libretro/CMakeLists.txt
++++ b/libretro/CMakeLists.txt
+@@ -1,6 +1,7 @@
+ 
+ set(LIBRETRO_SRCS
+ 	libretro.cpp
++	offscreen_vulkan.cpp
+ 	LibretroGraphicsContext.cpp
+ 	LibretroGLContext.cpp
+ 	LibretroGLCoreContext.cpp
+@@ -46,3 +47,7 @@ target_link_libraries(ppsspp_libretro Core ${CMAKE_THREAD_LIBS_INIT})
+ if(ANDROID)
+ 	target_link_libraries(ppsspp_libretro log)
+ endif()
++
++# DualScreenTV: dedicated PPSSPP hardware Vulkan renderer through MoltenVK.
++target_link_libraries(ppsspp_libretro "${DSTV_MOLTENVK_LIBRARY}" "-framework Metal" "-framework QuartzCore" "-framework IOSurface" "-framework UIKit" "-framework Foundation" "-framework CoreGraphics")
++target_include_directories(ppsspp_libretro PRIVATE "${DSTV_MOLTENVK_HEADERS}")
+diff --git a/libretro/LibretroGraphicsContext.cpp b/libretro/LibretroGraphicsContext.cpp
+index 26592b9..09e8a00 100644
+--- a/libretro/LibretroGraphicsContext.cpp
++++ b/libretro/LibretroGraphicsContext.cpp
+@@ -1,3 +1,4 @@
++#include "offscreen_vulkan.h"
+ 
+ #include "libretro/LibretroGraphicsContext.h"
+ #include "libretro/LibretroGLContext.h"
+@@ -18,7 +19,7 @@ extern "C" {
+    retro_hw_get_proc_address_t libretro_get_proc_address;
+ };
+ 
+-void retro_set_video_refresh(retro_video_refresh_t cb) { LibretroGraphicsContext::video_cb = cb; }
++void retro_set_video_refresh(retro_video_refresh_t cb) { LibretroGraphicsContext::video_cb = DSTVOffscreen::WrapVideo(cb); }
+ static void context_reset() { ((LibretroHWRenderContext *)Libretro::ctx)->ContextReset(); }
+ static void context_destroy() { ((LibretroHWRenderContext *)Libretro::ctx)->ContextDestroy(); }
+ 
+diff --git a/libretro/libretro.cpp b/libretro/libretro.cpp
+index ce785a3..d7b74ad 100644
+--- a/libretro/libretro.cpp
++++ b/libretro/libretro.cpp
+@@ -49,6 +49,7 @@
+ 
+ #include <libretro.h>
+ #include "libretro/LibretroGraphicsContext.h"
++#include "offscreen_vulkan.h"
+ #include "libretro/libretro_core_options.h"
+ 
+ #if PPSSPP_PLATFORM(ANDROID)
+@@ -404,7 +405,7 @@ static bool set_variable_visibility(void)
+ 
+ void retro_set_environment(retro_environment_t cb)
+ {
+-   environ_cb = cb;
++   environ_cb = DSTVOffscreen::WrapEnvironment(cb);
+ 
+    bool option_categories = false;
+    libretro_set_core_options(environ_cb, &option_categories);
+@@ -1484,6 +1485,7 @@ bool retro_load_game(const struct retro_game_info *game) {
+ 
+    ctx       = LibretroGraphicsContext::CreateGraphicsContext();
+ 
++   if (!ctx) return false;
+    INFO_LOG(Log::System, "Using %s backend", ctx->Ident());
+ 
+    Core_SetGraphicsContext(ctx);
+@@ -1504,6 +1506,11 @@ bool retro_load_game(const struct retro_game_info *game) {
+    coreParam.gpuCore         = ctx->GetGPUCore();
+    check_variables(coreParam);
+ 
++   if (!ctx || !DSTVOffscreen::Initialize()) {
++      delete ctx; ctx = nullptr; DSTVOffscreen::Shutdown(); return false;
++   }
++   printf("DSTV PSP: CPU=%d (IR interpreter=%d), vertex JIT=%d, resolution=%dx\n", g_Config.iCpuCore, (int)CPUCore::IR_INTERPRETER, 0, g_Config.iInternalResolution);
++
+    // TODO: OpenGL goes black when inited with software rendering,
+    // therefore start without, set back after init, and reset.
+    softwareRenderInitHack    = ctx->GetGPUCore() == GPUCORE_GLES && g_Config.bSoftwareRendering;
+@@ -1512,7 +1519,8 @@ bool retro_load_game(const struct retro_game_info *game) {
+ 
+    // set cpuCore from libretro setting variable
+    coreParam.cpuCore         =  (CPUCore)g_Config.iCpuCore;
+-   coreParam.bUseVertexDecoderJit = System_GetPropertyBool(SYSPROP_CAN_JIT);
++   coreParam.bUseVertexDecoderJit = false;
++   g_Config.bVertexDecoderJit = false;
+ 
+    g_pendingBoot = true;
+ 
+@@ -1558,6 +1566,7 @@ void retro_unload_game(void) {
+ 
+ 	delete ctx;
+ 	ctx = nullptr;
++	DSTVOffscreen::Shutdown();
+ 	PSP_CoreParameter().graphicsContext = nullptr;
+ }
+ 
+@@ -1663,6 +1672,7 @@ static void retro_input(void) {
+ 
+ // Called every frame by retroarch.
+ void retro_run(void) {
++
+    if (g_pendingBoot) {
+       BootState state = PSP_InitUpdate(&g_bootErrorString);
+       switch (state) {
+@@ -1781,6 +1791,10 @@ bool retro_serialize(void *data, size_t size) {
+ 
+    size_t measuredSize;
+    SaveState::SaveStart state;
++   if (!data || CChunkFileReader::MeasurePtr(state) > size) {
++      if (useEmuThread) EmuThreadStart();
++      return false;
++   }
+    auto err = CChunkFileReader::MeasureAndSavePtr(state, (u8 **)&data, &measuredSize);
+    bool retVal = err == CChunkFileReader::ERROR_NONE;
+ 

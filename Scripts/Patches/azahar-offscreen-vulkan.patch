@@ -1,0 +1,92 @@
+diff --git a/src/citra_libretro/CMakeLists.txt b/src/citra_libretro/CMakeLists.txt
+index e28f994..6ce51ba 100644
+--- a/src/citra_libretro/CMakeLists.txt
++++ b/src/citra_libretro/CMakeLists.txt
+@@ -28,2 +28,3 @@ add_library(citra_libretro SHARED
+         citra_libretro.cpp
++        offscreen_vulkan.cpp
+         citra_libretro.h
+@@ -101 +102,9 @@ endif()
+ add_custom_target(azahar_libretro DEPENDS citra_libretro)
++
++# DualScreenTV owns an offscreen Metal-backed Vulkan device.
++if(NOT DSTV_MOLTENVK_LIBRARY)
++    message(FATAL_ERROR "DSTV_MOLTENVK_LIBRARY must name the pinned tvOS static library")
++endif()
++target_link_libraries(citra_libretro PRIVATE "${DSTV_MOLTENVK_LIBRARY}"
++    "-framework Metal" "-framework QuartzCore" "-framework IOSurface"
++    "-framework UIKit" "-framework CoreGraphics")
+diff --git a/src/citra_libretro/citra_libretro.cpp b/src/citra_libretro/citra_libretro.cpp
+index 8a65f9d..98bddb9 100644
+--- a/src/citra_libretro/citra_libretro.cpp
++++ b/src/citra_libretro/citra_libretro.cpp
+@@ -5,2 +5,3 @@
+ #include <list>
++#include "offscreen_vulkan.h"
+ #include <numeric>
+@@ -58,3 +59,3 @@ class CitraLibRetro {
+ public:
+-    CitraLibRetro() : log_filter(Common::Log::Level::Debug) {}
++    CitraLibRetro() : log_filter(Common::Log::Level::Warning) {}
+ 
+@@ -99,2 +100,3 @@ void retro_deinit() {
+ 
++    DSTVOffscreen::Shutdown();
+     delete emu_instance;
+@@ -615,2 +617,13 @@ bool retro_load_game(const struct retro_game_info* info) {
+         LibRetro::SetHWRenderContextNegotiationInterface((void**)&vk_negotiation);
++        if (!DSTVOffscreen::Initialize() || !emu_instance->game_loaded) {
++            // Preserve the known working interpreter/software path if a GPU
++            // cannot initialize. Never change CPU clocks or enable CPU JIT.
++            if (Core::System::GetInstance().IsPoweredOn()) Core::System::GetInstance().Shutdown();
++            DSTVOffscreen::Shutdown();
++            Settings::values.graphics_api = Settings::GraphicsAPI::Software;
++            emu_instance->emu_window->CreateContext();
++            emu_instance->game_loaded = do_load_game();
++            LOG_WARNING(Frontend, "DualScreenTV: falling back to software graphics");
++            if (!emu_instance->game_loaded) return false;
++        }
+ #endif
+@@ -637,2 +650,3 @@ void retro_unload_game() {
+     Core::System::GetInstance().Shutdown();
++    DSTVOffscreen::Shutdown();
+ }
+diff --git a/src/citra_libretro/environment.cpp b/src/citra_libretro/environment.cpp
+index 23c053b..99db8e6 100644
+--- a/src/citra_libretro/environment.cpp
++++ b/src/citra_libretro/environment.cpp
+@@ -5,2 +5,3 @@
+ #include <cstring>
++#include "offscreen_vulkan.h"
+ 
+@@ -291,6 +292,6 @@ void retro_set_input_poll(retro_input_poll_t cb) {
+ void retro_set_video_refresh(retro_video_refresh_t cb) {
+-    LibRetro::video_cb = cb;
++    LibRetro::video_cb = DSTVOffscreen::WrapVideo(cb);
+ }
+ void retro_set_environment(retro_environment_t cb) {
+-    LibRetro::environ_cb = cb;
++    LibRetro::environ_cb = DSTVOffscreen::WrapEnvironment(cb);
+     LibRetro::OnConfigureEnvironment();
+diff --git a/src/citra_libretro/libretro_vk.cpp b/src/citra_libretro/libretro_vk.cpp
+index 8a1ac0a..d3f5475 100644
+--- a/src/citra_libretro/libretro_vk.cpp
++++ b/src/citra_libretro/libretro_vk.cpp
+@@ -761,5 +761,8 @@ MasterSemaphoreLibRetro::MasterSemaphoreLibRetro(const Instance& instance_) : in
+ MasterSemaphoreLibRetro::~MasterSemaphoreLibRetro() {
+-    // wait_thread will be automatically stopped by jthread destructor
+-    // Clean up remaining fences
++    // Join before touching fence pools: the waiter returns fences to free_queue.
++    wait_thread.request_stop();
++    wait_cv.notify_all();
++    if (wait_thread.joinable()) wait_thread.join();
+     const vk::Device device{instance.GetDevice()};
++    device.waitIdle();
+     for (const auto& fence : free_queue) {
+@@ -767,2 +770,6 @@ MasterSemaphoreLibRetro::~MasterSemaphoreLibRetro() {
+     }
++    while (!wait_queue.empty()) {
++        device.destroyFence(wait_queue.front().first);
++        wait_queue.pop();
++    }
+ }

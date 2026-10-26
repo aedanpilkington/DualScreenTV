@@ -1,0 +1,71 @@
+--- a/desmume/src/slot1.cpp
++++ b/desmume/src/slot1.cpp
+@@ -88,12 +88,13 @@
+ NDS_SLOT1_TYPE slot1_selected_type = NDS_SLOT1_NONE;
+ 
+ 
++static bool slot1_initialized = false;
++
+ void slot1_Init()
+ {
+ 	//due to sloppy initialization code in various untestable desmume ports, we might try this more than once
+-	static bool initialized = false;
+-	if(initialized) return;
+-	initialized = true;
++	if(slot1_initialized) return;
++	slot1_initialized = true;
+ 
+ 	//construct all devices
+ 	extern TISlot1InterfaceConstructor construct_Slot1_None;
+@@ -117,7 +118,11 @@
+ 		if(slot1_List[i])
+ 			slot1_List[i]->shutdown();
+ 		delete slot1_List[i];
+-	}
++		slot1_List[i] = NULL;
++	}
++	slot1_device = NULL;
++	slot1_selected_type = NDS_SLOT1_NONE;
++	slot1_initialized = false;
+ }
+ 
+ bool slot1_Connect()
+--- a/desmume/src/slot2.cpp
++++ b/desmume/src/slot2.cpp
+@@ -40,12 +40,13 @@
+ NDS_SLOT2_TYPE slot2_selected_type = NDS_SLOT2_NONE;
+ 
+ 
++static bool slot2_initialized = false;
++
+ void slot2_Init()
+ {
+ 	//due to sloppy initialization code in various untestable desmume ports, we might try this more than once
+-	static bool initialized = false;
+-	if(initialized) return;
+-	initialized = true;
++	if(slot2_initialized) return;
++	slot2_initialized = true;
+ 
+ 	//construct all devices
+ 	extern TISlot2InterfaceConstructor construct_Slot2_None;
+@@ -81,6 +82,9 @@
+ 		delete slot2_List[i];
+ 		slot2_List[i] = NULL;
+ 	}
++	slot2_device = NULL;
++	slot2_selected_type = NDS_SLOT2_NONE;
++	slot2_initialized = false;
+ }
+ 
+ bool slot2_Connect()
+--- a/desmume/src/render3D.cpp
++++ b/desmume/src/render3D.cpp
+@@ -63,6 +63,7 @@
+ 	gpu3D->NDS_3D_Close();
+ 	delete BaseRenderer;
+ 	BaseRenderer = NULL;
++	CurrentRenderer = NULL;
+ }
+ 
+ Render3D* Render3DBaseCreate()

@@ -1,0 +1,149 @@
+diff --git a/src/video_core/pica/pica_core.cpp b/src/video_core/pica/pica_core.cpp
+index 910ebc2..8efd148 100644
+--- a/src/video_core/pica/pica_core.cpp
++++ b/src/video_core/pica/pica_core.cpp
+@@ -14,6 +14,13 @@
+ #include "video_core/pica/vertex_loader.h"
+ #include "video_core/rasterizer_interface.h"
+ #include "video_core/shader/shader.h"
++#include <chrono>
++#include <cstdio>
++#include <cstdlib>
++#include <cstring>
++#ifdef ENABLE_METAL
++#include "MetalCpuProfile.h"
++#endif
+ 
+ namespace Pica {
+ 
+@@ -21,6 +28,41 @@ MICROPROFILE_DEFINE(GPU_Drawing, "GPU", "Drawing", MP_RGB(50, 50, 240));
+ 
+ using namespace DebugUtils;
+ 
++namespace {
++bool NativeMetalProfilingEnabled() {
++    static const bool enabled = [] {
++        const char* value = std::getenv("DSTV_METAL_PROFILE");
++        return value && value[0] != '\0' && std::strcmp(value, "0") != 0;
++    }();
++    return enabled;
++}
++
++void RecordCpuVertexProfile(double seconds, u32 submittedVertices, u32 shaderInvocations) {
++    using Clock = std::chrono::steady_clock;
++    static auto windowStart = Clock::now();
++    static double cpuSeconds = 0;
++    static u64 batches = 0, submitted = 0, invocations = 0;
++    cpuSeconds += seconds;
++    ++batches;
++    submitted += submittedVertices;
++    invocations += shaderInvocations;
++    const auto now = Clock::now();
++    const double elapsed = std::chrono::duration<double>(now - windowStart).count();
++    if (elapsed < 5.0) {
++        return;
++    }
++    std::printf("PICA CPU vertex profile: wall=%.2fs batches=%llu submitted=%llu shader_invocations=%llu cpu_ms=%.3f avg_ms/batch=%.4f avg_us/invocation=%.3f\n",
++                elapsed, static_cast<unsigned long long>(batches),
++                static_cast<unsigned long long>(submitted),
++                static_cast<unsigned long long>(invocations), cpuSeconds * 1000.0,
++                batches ? cpuSeconds * 1000.0 / batches : 0.0,
++                invocations ? cpuSeconds * 1000000.0 / invocations : 0.0);
++    windowStart = now;
++    cpuSeconds = 0;
++    batches = submitted = invocations = 0;
++}
++} // namespace
++
+ // Class representing implementation details of each internal register
+ // The set/get pattern is used instead of a bitfield union to allow
+ // constexpr evaluation.
+@@ -1095,6 +1137,15 @@ void PicaCore::DrawArrays(bool is_indexed) {
+ }
+ 
+ void PicaCore::LoadVertices(bool is_indexed) {
++    const bool profile = NativeMetalProfilingEnabled();
++    const auto profileStart = profile ? std::chrono::steady_clock::now()
++                                      : std::chrono::steady_clock::time_point{};
++    u32 shaderInvocations = 0;
++#ifdef ENABLE_METAL
++    const bool detailed=profile && ((AzaharMetal::cpuProfileSequence++ & 63)==0);
++    double vertexSeconds=0,geometrySeconds=0;
++    u32 geometrySubmissions=0;
++#endif
+     // Read and validate vertex information from the loaders
+     const auto& pipeline = regs.internal.pipeline;
+     const PAddr base_address = pipeline.vertex_attributes.GetPhysicalBaseAddress();
+@@ -1107,6 +1158,10 @@ void PicaCore::LoadVertices(bool is_indexed) {
+     if (index_address_8 == nullptr) {
+         // Mario & Luigi: Superstar Saga sets an invalid base address
+         // for the vertex attributes. Return early if that is the case.
++        if (profile) {
++            RecordCpuVertexProfile(std::chrono::duration<double>(
++                std::chrono::steady_clock::now() - profileStart).count(), 0, 0);
++        }
+         return;
+     }
+     const u16* index_address_16 = reinterpret_cast<const u16*>(index_address_8);
+@@ -1138,7 +1193,14 @@ void PicaCore::LoadVertices(bool is_indexed) {
+         bool vertex_cache_hit = false;
+         if (is_indexed) {
+             if (geometry_pipeline.NeedIndexInput()) {
++#ifdef ENABLE_METAL
++                const auto geometryStart=detailed?std::chrono::steady_clock::now():std::chrono::steady_clock::time_point{};
++#endif
+                 geometry_pipeline.SubmitIndex(vertex);
++#ifdef ENABLE_METAL
++                ++geometrySubmissions;
++                if(detailed)geometrySeconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-geometryStart).count();
++#endif
+                 continue;
+             }
+ 
+@@ -1163,9 +1225,16 @@ void PicaCore::LoadVertices(bool is_indexed) {
+             }
+ 
+             // Invoke the vertex shader for this vertex.
++            ++shaderInvocations;
++#ifdef ENABLE_METAL
++            const auto vertexStart=detailed?std::chrono::steady_clock::now():std::chrono::steady_clock::time_point{};
++#endif
+             shader_unit.LoadInput(regs.internal.vs, input);
+             shader_engine->Run(vs_setup, shader_unit);
+             shader_unit.WriteOutput(regs.internal.vs, vs_output);
++#ifdef ENABLE_METAL
++            if(detailed)vertexSeconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-vertexStart).count();
++#endif
+ 
+             // Cache the vertex when doing indexed rendering.
+             if (is_indexed) {
+@@ -1177,7 +1246,29 @@ void PicaCore::LoadVertices(bool is_indexed) {
+         }
+ 
+         // Send to geometry pipeline
++#ifdef ENABLE_METAL
++        const auto geometryStart=detailed?std::chrono::steady_clock::now():std::chrono::steady_clock::time_point{};
++#endif
+         geometry_pipeline.SubmitVertex(vs_output);
++#ifdef ENABLE_METAL
++        ++geometrySubmissions;
++        if(detailed)geometrySeconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-geometryStart).count();
++#endif
++    }
++    if (profile) {
++#ifdef ENABLE_METAL
++        auto& counters=AzaharMetal::cpuProfile;
++        counters.totalSeconds+=std::chrono::duration<double>(std::chrono::steady_clock::now()-profileStart).count();
++        ++counters.batches;counters.vertices+=pipeline.num_vertices;counters.invocations+=shaderInvocations;
++        if(pipeline.use_gs==PipelineRegs::UseGS::Yes)++counters.geometryBatches;
++        if(detailed) {
++            ++counters.sampledBatches;counters.sampledInvocations+=shaderInvocations;counters.sampledSubmissions+=geometrySubmissions;
++            counters.sampledVertexSeconds+=vertexSeconds;counters.sampledGeometrySeconds+=geometrySeconds;
++        }
++#endif
++        RecordCpuVertexProfile(std::chrono::duration<double>(
++            std::chrono::steady_clock::now() - profileStart).count(),
++            pipeline.num_vertices, shaderInvocations);
+     }
+ }
+ 

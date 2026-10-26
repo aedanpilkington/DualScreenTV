@@ -1,0 +1,28 @@
+--- a/src/video_core/shader/shader_interpreter.cpp
++++ b/src/video_core/shader/shader_interpreter.cpp
+@@ -6,6 +6,9 @@
+ #include <cmath>
+ #include <numeric>
+ #include <boost/circular_buffer.hpp>
++#ifdef ENABLE_METAL
++#include "InterpreterStack.h"
++#endif
+ #include <boost/container/static_vector.hpp>
+ #include <nihstro/shader_bytecode.h>
+ #include "common/assert.h"
+@@ -47,9 +50,15 @@
+ template <bool Debug>
+ static void RunInterpreter(const ShaderSetup& setup, ShaderUnit& state,
+                            DebugData<Debug>& debug_data, unsigned entry_point) {
++#ifdef ENABLE_METAL
++    InterpreterStack<IfStackElement,8> if_stack;
++    InterpreterStack<CallStackElement,4> call_stack;
++    InterpreterStack<LoopStackElement,4> loop_stack;
++#else
+     boost::circular_buffer<IfStackElement> if_stack(8);
+     boost::circular_buffer<CallStackElement> call_stack(4);
+     boost::circular_buffer<LoopStackElement> loop_stack(4);
++#endif
+     u32 program_counter = entry_point;
+ 
+     const auto do_if = [&](Instruction instr, bool condition) {

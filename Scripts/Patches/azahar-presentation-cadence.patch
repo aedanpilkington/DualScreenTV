@@ -1,0 +1,82 @@
+diff --git a/src/citra_libretro/emu_window/libretro_window.cpp b/src/citra_libretro/emu_window/libretro_window.cpp
+index f8cfb2c..b5cc695 100644
+--- a/src/citra_libretro/emu_window/libretro_window.cpp
++++ b/src/citra_libretro/emu_window/libretro_window.cpp
+@@ -65,6 +65,20 @@ EmuWindow_LibRetro::EmuWindow_LibRetro() {
+ 
+ EmuWindow_LibRetro::~EmuWindow_LibRetro() {}
+ 
++bool EmuWindow_LibRetro::ShouldPresentFrame() {
++    if (LibRetro::FetchVariable("dstv_presentation_rate", "60") != "30") {
++        presentation_tick = 0;
++        return true;
++    }
++    return (++presentation_tick & 1u) != 0;
++}
++
++void EmuWindow_LibRetro::OnFrameSkipped() {
++    // retro_run must return on every emulated vblank, including duplicate output.
++    // Otherwise its HasSubmittedFrame loop would run extra guest ticks per call.
++    if (!suppressPresentation) submittedFrame = true;
++}
++
+ void EmuWindow_LibRetro::SwapBuffers() {
+     if (suppressPresentation)
+         return;
+diff --git a/src/citra_libretro/emu_window/libretro_window.h b/src/citra_libretro/emu_window/libretro_window.h
+index 1ff793f..05c8837 100644
+--- a/src/citra_libretro/emu_window/libretro_window.h
++++ b/src/citra_libretro/emu_window/libretro_window.h
+@@ -27,6 +27,8 @@ public:
+ 
+     /// Swap buffers to display the next frame
+     void SwapBuffers() override;
++    bool ShouldPresentFrame() override;
++    void OnFrameSkipped() override;
+ 
+     /// Polls window events
+     void PollEvents() override;
+@@ -61,6 +63,7 @@ public:
+     CursorInfo GetCursorInfo() const override;
+ 
+ private:
++    unsigned presentation_tick = 0;
+     /// Called when a configuration change affects the minimal size of the window
+     void OnMinimalClientAreaChangeRequest(std::pair<u32, u32> minimal_size) override;
+ 
+diff --git a/src/core/frontend/emu_window.h b/src/core/frontend/emu_window.h
+index 963bd63..ad38a83 100644
+--- a/src/core/frontend/emu_window.h
++++ b/src/core/frontend/emu_window.h
+@@ -86,6 +86,10 @@ public:
+     /// Inform the driver to swap the front/back buffers and present the current image
+     virtual void SwapBuffers() {};
+ 
++    // Optional frontend output cadence. Guest execution continues on skipped ticks.
++    virtual bool ShouldPresentFrame() { return true; }
++    virtual void OnFrameSkipped() {}
++
+     /// Makes the graphics context current for the caller thread
+     virtual void MakeCurrent() {};
+ 
+diff --git a/src/video_core/renderer_vulkan/renderer_vulkan.cpp b/src/video_core/renderer_vulkan/renderer_vulkan.cpp
+index 5221fdf..3fef4b4 100644
+--- a/src/video_core/renderer_vulkan/renderer_vulkan.cpp
++++ b/src/video_core/renderer_vulkan/renderer_vulkan.cpp
+@@ -1126,6 +1126,16 @@ void RendererVulkan::DrawCursor(const Layout::FramebufferLayout& layout) {
+ void RendererVulkan::SwapBuffers() {
+     system.perf_stats->StartSwap();
+     screenRendered = false;
++    if (!render_window.ShouldPresentFrame()) {
++        // Flush guest rendering without final composition/readback or GPU idle.
++        // Keep emulated time, audio, resource tracking and libretro tick semantics.
++        scheduler.Flush();
++        render_window.OnFrameSkipped();
++        system.perf_stats->EndSwap();
++        rasterizer.TickFrame();
++        EndFrame();
++        return;
++    }
+ #ifndef ANDROID
+     if (Settings::values.layout_option.GetValue() == Settings::LayoutOption::SeparateWindows) {
+         ASSERT(secondary_window);

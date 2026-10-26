@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PreferenceSpecifiers</key>
+	<array>
+		<dict>
+			<key>FooterText</key>
+			<string>Choose which screen appears on the TV. The companion shows the opposite screen, so screen shortcuts swap both outputs. Touch works while the bottom screen is on the companion. The emulated top and bottom screens retain independent TV display modes.</string>
+			<key>Title</key>
+			<string>TV Screen</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<string>top</string>
+			<key>Key</key>
+			<string>display.screen</string>
+			<key>Title</key>
+			<string>TV Screen</string>
+			<key>Titles</key>
+			<array>
+				<string>Top</string>
+				<string>Bottom</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Values</key>
+			<array>
+				<string>top</string>
+				<string>bottom</string>
+			</array>
+		</dict>
+		<dict>
+			<key>FooterText</key>
+			<string>Original fits the complete image. Overscan adds a small zoom. Fill crops to fill the TV. Stretch changes proportions to fill the TV.</string>
+			<key>Title</key>
+			<string>Top Screen Display</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<string>original</string>
+			<key>Key</key>
+			<string>display.top.mode</string>
+			<key>Title</key>
+			<string>Display Mode</string>
+			<key>Titles</key>
+			<array>
+				<string>Original</string>
+				<string>Overscan</string>
+				<string>Fill</string>
+				<string>Stretch</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Values</key>
+			<array>
+				<string>original</string>
+				<string>overscan</string>
+				<string>fill</string>
+				<string>stretch</string>
+			</array>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<integer>10</integer>
+			<key>Key</key>
+			<string>display.top.overscanPercent</string>
+			<key>Title</key>
+			<string>Overscan Zoom</string>
+			<key>Titles</key>
+			<array>
+				<string>5%</string>
+				<string>10%</string>
+				<string>15%</string>
+				<string>20%</string>
+				<string>25%</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Values</key>
+			<array>
+				<integer>5</integer>
+				<integer>10</integer>
+				<integer>15</integer>
+				<integer>20</integer>
+				<integer>25</integer>
+			</array>
+		</dict>
+	</array>
+	<key>StringsTable</key>
+	<string>Root</string>
+</dict>
+</plist>

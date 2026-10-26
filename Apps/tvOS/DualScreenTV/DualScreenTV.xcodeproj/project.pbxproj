@@ -1,0 +1,644 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 110;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		4A21EA6030786A8600BC08B5 /* melondsds_libretro.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A21EA5F30786A8600BC08B5 /* melondsds_libretro.dylib */; };
+		4A21EA6130786A8600BC08B5 /* melondsds_libretro.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 4A21EA5F30786A8600BC08B5 /* melondsds_libretro.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		A10000000000000000000010 /* DualScreenTVTopShelf.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = A10000000000000000000001 /* DualScreenTVTopShelf.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		B30000000000000000000001 /* azahar_libretro.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = B30000000000000000000002 /* azahar_libretro.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		B40000000000000000000001 /* desmume_libretro.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = B40000000000000000000002 /* desmume_libretro.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		B50000000000000000000001 /* dust_libretro.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = B50000000000000000000002 /* dust_libretro.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		B60000000000000000000001 /* mgba_libretro.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = B60000000000000000000002 /* mgba_libretro.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		B70000000000000000000001 /* ppsspp_libretro.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = B70000000000000000000002 /* ppsspp_libretro.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		B80000000000000000000001 /* azahar_metal_libretro.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = B80000000000000000000002 /* azahar_metal_libretro.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A10000000000000000000012 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4A21EA483078487A00BC08B5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A10000000000000000000006;
+			remoteInfo = DualScreenTVTopShelf;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		4A21EA6230786A8600BC08B5 /* Embed Libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			dstPath = "";
+			dstSubfolder = Frameworks;
+			files = (
+				4A21EA6130786A8600BC08B5 /* melondsds_libretro.dylib in Embed Libraries */,
+				B30000000000000000000001 /* azahar_libretro.dylib in Embed Libraries */,
+				B80000000000000000000001 /* azahar_metal_libretro.dylib in Embed Libraries */,
+				B40000000000000000000001 /* desmume_libretro.dylib in Embed Libraries */,
+				B50000000000000000000001 /* dust_libretro.dylib in Embed Libraries */,
+				B60000000000000000000001 /* mgba_libretro.dylib in Embed Libraries */,
+				B70000000000000000000001 /* ppsspp_libretro.dylib in Embed Libraries */,
+			);
+			name = "Embed Libraries";
+		};
+		A10000000000000000000011 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			dstPath = "";
+			dstSubfolder = PlugIns;
+			files = (
+				A10000000000000000000010 /* DualScreenTVTopShelf.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		4A21EA503078487A00BC08B5 /* DualScreenTV.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DualScreenTV.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4A21EA5F30786A8600BC08B5 /* melondsds_libretro.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = melondsds_libretro.dylib; path = Frameworks/melondsds_libretro.dylib; sourceTree = "<group>"; };
+		A10000000000000000000001 /* DualScreenTVTopShelf.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; path = DualScreenTVTopShelf.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		B20000000000000000000003 /* DualScreenTVCompanion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; path = DualScreenTVCompanion.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B30000000000000000000002 /* azahar_libretro.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = azahar_libretro.dylib; path = Frameworks/azahar_libretro.dylib; sourceTree = "<group>"; };
+		B40000000000000000000002 /* desmume_libretro.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = desmume_libretro.dylib; path = Frameworks/desmume_libretro.dylib; sourceTree = "<group>"; };
+		B50000000000000000000002 /* dust_libretro.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = dust_libretro.dylib; path = Frameworks/dust_libretro.dylib; sourceTree = "<group>"; };
+		B60000000000000000000002 /* mgba_libretro.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = mgba_libretro.dylib; path = Frameworks/mgba_libretro.dylib; sourceTree = "<group>"; };
+		B70000000000000000000002 /* ppsspp_libretro.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = ppsspp_libretro.dylib; path = Frameworks/ppsspp_libretro.dylib; sourceTree = "<group>"; };
+		B80000000000000000000002 /* azahar_metal_libretro.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = azahar_metal_libretro.dylib; path = Frameworks/azahar_metal_libretro.dylib; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		4A21EA523078487A00BC08B5 /* DualScreenTV */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFolders = (
+				PPSSPP,
+			);
+			path = DualScreenTV;
+			sourceTree = "<group>";
+		};
+		A10000000000000000000002 /* TopShelf */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = TopShelf;
+			sourceTree = "<group>";
+		};
+		B20000000000000000000001 /* ../../../Shared/Companion/Sources/DualScreenLink */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ../../../Shared/Companion/Sources/DualScreenLink;
+			sourceTree = "<group>";
+		};
+		B20000000000000000000002 /* ../../iPadOS/DualScreenTVCompanion/DualScreenTVCompanion */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ../../iPadOS/DualScreenTVCompanion/DualScreenTVCompanion;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4A21EA4D3078487A00BC08B5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+				4A21EA6030786A8600BC08B5 /* melondsds_libretro.dylib in Frameworks */,
+			);
+		};
+		A10000000000000000000004 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
+		B20000000000000000000005 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		4A21EA473078487A00BC08B5 = {
+			isa = PBXGroup;
+			children = (
+				4A21EA523078487A00BC08B5 /* DualScreenTV */,
+				B20000000000000000000001 /* ../../../Shared/Companion/Sources/DualScreenLink */,
+				B20000000000000000000002 /* ../../iPadOS/DualScreenTVCompanion/DualScreenTVCompanion */,
+				A10000000000000000000002 /* TopShelf */,
+				4A21EA5E30786A8600BC08B5 /* Frameworks */,
+				4A21EA513078487A00BC08B5 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		4A21EA513078487A00BC08B5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4A21EA503078487A00BC08B5 /* DualScreenTV.app */,
+				B20000000000000000000003 /* DualScreenTVCompanion.app */,
+				A10000000000000000000001 /* DualScreenTVTopShelf.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4A21EA5E30786A8600BC08B5 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4A21EA5F30786A8600BC08B5 /* melondsds_libretro.dylib */,
+				B30000000000000000000002 /* azahar_libretro.dylib */,
+				B80000000000000000000002 /* azahar_metal_libretro.dylib */,
+				B40000000000000000000002 /* desmume_libretro.dylib */,
+				B50000000000000000000002 /* dust_libretro.dylib */,
+				B60000000000000000000002 /* mgba_libretro.dylib */,
+				B70000000000000000000002 /* ppsspp_libretro.dylib */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4A21EA4F3078487A00BC08B5 /* DualScreenTV */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4A21EA5B3078487B00BC08B5 /* Build configuration list for PBXNativeTarget "DualScreenTV" */;
+			buildPhases = (
+				4A21EA4C3078487A00BC08B5 /* Sources */,
+				4A21EA4D3078487A00BC08B5 /* Frameworks */,
+				4A21EA4E3078487A00BC08B5 /* Resources */,
+				4A21EA6230786A8600BC08B5 /* Embed Libraries */,
+				A10000000000000000000011 /* Embed App Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A10000000000000000000013 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				4A21EA523078487A00BC08B5 /* DualScreenTV */,
+				B20000000000000000000001 /* ../../../Shared/Companion/Sources/DualScreenLink */,
+			);
+			name = DualScreenTV;
+			productName = DualScreenTV;
+			productReference = 4A21EA503078487A00BC08B5 /* DualScreenTV.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A10000000000000000000006 /* DualScreenTVTopShelf */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A10000000000000000000007 /* Build configuration list for PBXNativeTarget "DualScreenTVTopShelf" */;
+			buildPhases = (
+				A10000000000000000000003 /* Sources */,
+				A10000000000000000000004 /* Frameworks */,
+				A10000000000000000000005 /* Resources */,
+			);
+			buildRules = (
+			);
+			fileSystemSynchronizedGroups = (
+				A10000000000000000000002 /* TopShelf */,
+			);
+			name = DualScreenTVTopShelf;
+			productName = DualScreenTVTopShelf;
+			productReference = A10000000000000000000001 /* DualScreenTVTopShelf.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		B20000000000000000000007 /* DualScreenTVCompanion */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B20000000000000000000008 /* Build configuration list for PBXNativeTarget "DualScreenTVCompanion" */;
+			buildPhases = (
+				B20000000000000000000004 /* Sources */,
+				B20000000000000000000005 /* Frameworks */,
+				B20000000000000000000006 /* Resources */,
+			);
+			buildRules = (
+			);
+			fileSystemSynchronizedGroups = (
+				B20000000000000000000001 /* ../../../Shared/Companion/Sources/DualScreenLink */,
+				B20000000000000000000002 /* ../../iPadOS/DualScreenTVCompanion/DualScreenTVCompanion */,
+			);
+			name = DualScreenTVCompanion;
+			productName = DualScreenTVCompanion;
+			productReference = B20000000000000000000003 /* DualScreenTVCompanion.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4A21EA483078487A00BC08B5 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2700;
+				LastUpgradeCheck = 2700;
+				TargetAttributes = {
+					4A21EA4F3078487A00BC08B5 = {
+						CreatedOnToolsVersion = 27.0;
+					};
+				};
+			};
+			buildConfigurationList = 4A21EA4B3078487A00BC08B5 /* Build configuration list for PBXProject "DualScreenTV" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 4A21EA473078487A00BC08B5;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 4A21EA513078487A00BC08B5 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B20000000000000000000007 /* DualScreenTVCompanion */,
+				4A21EA4F3078487A00BC08B5 /* DualScreenTV */,
+				A10000000000000000000006 /* DualScreenTVTopShelf */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		4A21EA4E3078487A00BC08B5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+		A10000000000000000000005 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+		B20000000000000000000006 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4A21EA4C3078487A00BC08B5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
+		A10000000000000000000003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
+		B20000000000000000000004 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A10000000000000000000013 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A10000000000000000000006 /* DualScreenTVTopShelf */;
+			targetProxy = A10000000000000000000012 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		4A21EA593078487B00BC08B5 /* Debug configuration for PBXProject "DualScreenTV" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = appletvos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TVOS_DEPLOYMENT_TARGET = 17.0;
+			};
+			name = Debug;
+		};
+		4A21EA5A3078487B00BC08B5 /* Release configuration for PBXProject "DualScreenTV" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = appletvos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				TVOS_DEPLOYMENT_TARGET = 17.0;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		4A21EA5C3078487B00BC08B5 /* Debug configuration for PBXNativeTarget "DualScreenTV" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Config/DualScreenTV.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				EXCLUDED_SOURCE_FILE_NAMES = "*.nds";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Config/Info.plist;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.example.DualScreenTV;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = DualScreenTV/LibretroBridge.h;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 17.0;
+			};
+			name = Debug;
+		};
+		4A21EA5D3078487B00BC08B5 /* Release configuration for PBXNativeTarget "DualScreenTV" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Config/DualScreenTV.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				EXCLUDED_SOURCE_FILE_NAMES = "*.nds";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Config/Info.plist;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.example.DualScreenTV;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = DualScreenTV/LibretroBridge.h;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 17.0;
+			};
+			name = Release;
+		};
+		A10000000000000000000008 /* Debug configuration for PBXNativeTarget "DualScreenTVTopShelf" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = Config/TopShelf.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/TopShelf-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.example.DualScreenTV.TopShelf;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 17.0;
+			};
+			name = Debug;
+		};
+		A10000000000000000000009 /* Release configuration for PBXNativeTarget "DualScreenTVTopShelf" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = Config/TopShelf.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/TopShelf-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.example.DualScreenTV.TopShelf;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 17.0;
+			};
+			name = Release;
+		};
+		B20000000000000000000009 /* Debug configuration for PBXNativeTarget "DualScreenTVCompanion" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = ../../iPadOS/DualScreenTVCompanion/Config/Mac.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ../../iPadOS/DualScreenTVCompanion/Config/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "DualScreenTV Companion";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.example.DualScreenTV.Companion;
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=macosx*]" = org.example.DualScreenTV.Companion.Mac;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 2;
+			};
+			name = Debug;
+		};
+		B20000000000000000000010 /* Release configuration for PBXNativeTarget "DualScreenTVCompanion" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = ../../iPadOS/DualScreenTVCompanion/Config/Mac.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ../../iPadOS/DualScreenTVCompanion/Config/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "DualScreenTV Companion";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.example.DualScreenTV.Companion;
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=macosx*]" = org.example.DualScreenTV.Companion.Mac;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 2;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4A21EA4B3078487A00BC08B5 /* Build configuration list for PBXProject "DualScreenTV" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4A21EA593078487B00BC08B5 /* Debug configuration for PBXProject "DualScreenTV" */,
+				4A21EA5A3078487B00BC08B5 /* Release configuration for PBXProject "DualScreenTV" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		4A21EA5B3078487B00BC08B5 /* Build configuration list for PBXNativeTarget "DualScreenTV" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4A21EA5C3078487B00BC08B5 /* Debug configuration for PBXNativeTarget "DualScreenTV" */,
+				4A21EA5D3078487B00BC08B5 /* Release configuration for PBXNativeTarget "DualScreenTV" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		A10000000000000000000007 /* Build configuration list for PBXNativeTarget "DualScreenTVTopShelf" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A10000000000000000000008 /* Debug configuration for PBXNativeTarget "DualScreenTVTopShelf" */,
+				A10000000000000000000009 /* Release configuration for PBXNativeTarget "DualScreenTVTopShelf" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		B20000000000000000000008 /* Build configuration list for PBXNativeTarget "DualScreenTVCompanion" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B20000000000000000000009 /* Debug configuration for PBXNativeTarget "DualScreenTVCompanion" */,
+				B20000000000000000000010 /* Release configuration for PBXNativeTarget "DualScreenTVCompanion" */,
+			);
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 4A21EA483078487A00BC08B5 /* Project object */;
+	validationLevel = 1;
+}

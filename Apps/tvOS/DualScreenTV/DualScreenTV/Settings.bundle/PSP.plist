@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PreferenceSpecifiers</key>
+	<array>
+		<dict>
+			<key>FooterText</key>
+			<string>PPSSPP uses its hardware Vulkan renderer through MoltenVK and the IR interpreter. CPU and vertex-decoder JIT are disabled. No PSP firmware is required or bundled. Resolution changes require reopening the game.</string>
+			<key>Title</key>
+			<string>PlayStation Portable</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<integer>1</integer>
+			<key>Key</key>
+			<string>graphics.psp.resolution</string>
+			<key>Title</key>
+			<string>Internal resolution</string>
+			<key>Titles</key>
+			<array>
+				<string>1×</string>
+				<string>2×</string>
+				<string>3×</string>
+				<string>4×</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Values</key>
+			<array>
+				<integer>1</integer>
+				<integer>2</integer>
+				<integer>3</integer>
+				<integer>4</integer>
+			</array>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<string>Auto</string>
+			<key>Key</key>
+			<string>graphics.psp.filtering</string>
+			<key>Title</key>
+			<string>Texture filtering</string>
+			<key>Titles</key>
+			<array>
+				<string>Automatic</string>
+				<string>Nearest</string>
+				<string>Linear</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Values</key>
+			<array>
+				<string>Auto</string>
+				<string>Nearest</string>
+				<string>Linear</string>
+			</array>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<string>disabled</string>
+			<key>Key</key>
+			<string>graphics.psp.anisotropic</string>
+			<key>Title</key>
+			<string>Anisotropic filtering</string>
+			<key>Titles</key>
+			<array>
+				<string>Off</string>
+				<string>2×</string>
+				<string>4×</string>
+				<string>8×</string>
+				<string>16×</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Values</key>
+			<array>
+				<string>disabled</string>
+				<string>2x</string>
+				<string>4x</string>
+				<string>8x</string>
+				<string>16x</string>
+			</array>
+		</dict>
+	</array>
+	<key>StringsTable</key>
+	<string>PSP</string>
+</dict>
+</plist>

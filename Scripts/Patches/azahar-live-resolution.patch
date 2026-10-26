@@ -1,0 +1,35 @@
+--- a/src/citra_libretro/libretro_vk.cpp
++++ b/src/citra_libretro/libretro_vk.cpp
+@@ -612,6 +612,9 @@
+         if (frame.present_done) {
+             device.destroyFence(frame.present_done);
+         }
++        if (frame.cmdbuf) {
++            device.freeCommandBuffers(command_pool, frame.cmdbuf);
++        }
+     }
+ 
+     frame_pool.clear();
+@@ -677,7 +680,9 @@
+     [[maybe_unused]] const vk::Result wait_result =
+         device.waitForFences(frame->present_done, VK_TRUE, UINT64_MAX);
+ 
+-    // Recreate output texture with new dimensions
++    // Framebuffers must release their views before the shared image is destroyed.
++    // RenderToWindow has finished pending GPU work before entering this method.
++    DestroyFrameResources();
+     CreateOutputTexture(width, height);
+ 
+     // Recreate frame resources
+--- a/src/video_core/renderer_vulkan/renderer_vulkan.cpp
++++ b/src/video_core/renderer_vulkan/renderer_vulkan.cpp
+@@ -244,6 +244,9 @@
+             window.WaitPresent();
+             scheduler.Finish();
+             window.RecreateFrame(frame, layout.width, layout.height);
++            // The libretro presenter rebuilds its pool when the output resizes.
++            // Reacquire instead of retaining a pointer to a destroyed frame.
++            frame = window.GetRenderFrame();
+         }
+ 
+         clear_color.float32[0] = Settings::values.bg_red.GetValue();

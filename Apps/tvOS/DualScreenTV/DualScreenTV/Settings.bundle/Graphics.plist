@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PreferenceSpecifiers</key>
+	<array>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Top Screen Image</string>
+			<key>FooterText</key>
+			<string>Applies to DS and 3DS top-screen output. Internal rendering resolution is configured separately in 3DS Settings. Bottom-screen image options are in Bottom Screen Settings.</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Image Filtering</string>
+			<key>Key</key>
+			<string>display.top.filtering</string>
+			<key>DefaultValue</key>
+			<string>nearest</string>
+			<key>Values</key>
+			<array>
+				<string>nearest</string>
+				<string>linear</string>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>Nearest / Pixel Sharp</string>
+				<string>Linear / Smooth</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Pixel-art Enhancement</string>
+			<key>Key</key>
+			<string>display.top.enhancement</string>
+			<key>DefaultValue</key>
+			<string>off</string>
+			<key>Values</key>
+			<array>
+				<string>off</string>
+				<string>2</string>
+				<string>4</string>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>Off (Native)</string>
+				<string>2× Edge-aware</string>
+				<string>4× Edge-aware</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Integer Scale (Original Only)</string>
+			<key>Key</key>
+			<string>display.top.integerScale</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Image Enhancement</string>
+			<key>FooterText</key>
+			<string>2× and 4× reshape pixel edges in the existing image; they do not increase internal 3D resolution or texture detail. Enhancement is bypassed above native 3DS resolution. Integer scale uses whole-pixel multiples in Original mode only.</string>
+		</dict>
+	</array>
+	<key>StringsTable</key>
+	<string>Root</string>
+</dict>
+</plist>

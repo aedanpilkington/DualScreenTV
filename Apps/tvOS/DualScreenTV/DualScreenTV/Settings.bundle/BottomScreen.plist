@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PreferenceSpecifiers</key>
+	<array>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Bottom Screen Display</string>
+			<key>FooterText</key>
+			<string>Independent DS and 3DS bottom-screen settings when shown on the TV. Original fits the full image. Overscan zooms. Fill crops to fill the TV. Stretch changes proportions. Companion display settings are controlled on the companion.</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Display Mode</string>
+			<key>Key</key>
+			<string>display.bottom.mode</string>
+			<key>DefaultValue</key>
+			<string>original</string>
+			<key>Values</key>
+			<array>
+				<string>original</string>
+				<string>overscan</string>
+				<string>fill</string>
+				<string>stretch</string>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>Original</string>
+				<string>Overscan</string>
+				<string>Fill</string>
+				<string>Stretch</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Overscan Zoom</string>
+			<key>Key</key>
+			<string>display.bottom.overscanPercent</string>
+			<key>DefaultValue</key>
+			<integer>10</integer>
+			<key>Values</key>
+			<array>
+				<integer>5</integer>
+				<integer>10</integer>
+				<integer>15</integer>
+				<integer>20</integer>
+				<integer>25</integer>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>5%</string>
+				<string>10%</string>
+				<string>15%</string>
+				<string>20%</string>
+				<string>25%</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Bottom Screen Image</string>
+			<key>FooterText</key>
+			<string>Filtering, enhancement and integer scale affect output, not internal 3D resolution. Enhancement is bypassed above native 3DS resolution. Integer scale applies only in Original mode.</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Image Filtering</string>
+			<key>Key</key>
+			<string>display.bottom.filtering</string>
+			<key>DefaultValue</key>
+			<string>nearest</string>
+			<key>Values</key>
+			<array>
+				<string>nearest</string>
+				<string>linear</string>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>Nearest / Pixel Sharp</string>
+				<string>Linear / Smooth</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Pixel-art Enhancement</string>
+			<key>Key</key>
+			<string>display.bottom.enhancement</string>
+			<key>DefaultValue</key>
+			<string>off</string>
+			<key>Values</key>
+			<array>
+				<string>off</string>
+				<string>2</string>
+				<string>4</string>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>Off (Native)</string>
+				<string>2× Edge-aware</string>
+				<string>4× Edge-aware</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Integer Scale (Original Only)</string>
+			<key>Key</key>
+			<string>display.bottom.integerScale</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+	</array>
+	<key>StringsTable</key>
+	<string>Root</string>
+</dict>
+</plist>

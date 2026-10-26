@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PreferenceSpecifiers</key>
+	<array>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Screen Display</string>
+			<key>FooterText</key>
+			<string>Original fits the complete image. Overscan adds a small zoom. Fill crops to fill the TV. Stretch changes proportions to fill the TV. Applies to Game Boy, Game Boy Color and Game Boy Advance. Integer scaling applies only to Original mode. Changes apply when you return to your game.</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Display Mode</string>
+			<key>Key</key>
+			<string>display.gb.mode</string>
+			<key>DefaultValue</key>
+			<string>original</string>
+			<key>Values</key>
+			<array>
+				<string>original</string>
+				<string>overscan</string>
+				<string>fill</string>
+				<string>stretch</string>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>Original</string>
+				<string>Overscan</string>
+				<string>Fill</string>
+				<string>Stretch</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Overscan Zoom</string>
+			<key>Key</key>
+			<string>display.gb.overscanPercent</string>
+			<key>DefaultValue</key>
+			<integer>10</integer>
+			<key>Values</key>
+			<array>
+				<integer>5</integer>
+				<integer>10</integer>
+				<integer>15</integer>
+				<integer>20</integer>
+				<integer>25</integer>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>5%</string>
+				<string>10%</string>
+				<string>15%</string>
+				<string>20%</string>
+				<string>25%</string>
+			</array>
+		</dict>
+		<dict>
+			<key>FooterText</key>
+			<string>Colour and LCD grid effects use the GPU; they approximate an LCD appearance. No BIOS is bundled or required for the built-in HLE path.</string>
+			<key>Title</key>
+			<string>Game Boy / Color / Advance</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<true/>
+			<key>Key</key>
+			<string>graphics.gb.integerScale</string>
+			<key>Title</key>
+			<string>Integer scaling</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<false/>
+			<key>Key</key>
+			<string>graphics.gb.smoothing</string>
+			<key>Title</key>
+			<string>Pixel smoothing</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<false/>
+			<key>Key</key>
+			<string>graphics.gb.colourCorrection</string>
+			<key>Title</key>
+			<string>LCD colour approximation</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<false/>
+			<key>Key</key>
+			<string>graphics.gb.lcd</string>
+			<key>Title</key>
+			<string>LCD pixel grid</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+	</array>
+	<key>StringsTable</key>
+	<string>GameBoy</string>
+</dict>
+</plist>

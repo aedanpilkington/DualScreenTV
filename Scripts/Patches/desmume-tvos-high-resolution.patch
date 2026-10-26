@@ -1,0 +1,85 @@
+diff --git a/desmume/src/frontend/libretro/libretro.cpp b/desmume/src/frontend/libretro/libretro.cpp
+index 2314af9..e8313ff 100644
+--- a/desmume/src/frontend/libretro/libretro.cpp
++++ b/desmume/src/frontend/libretro/libretro.cpp
+@@ -209,6 +209,8 @@ static void DrawPointerLineSmall(uint16_t* aOut, uint32_t aPitchInPix, int facto
+ 
+ static void DrawPointer(uint16_t* aOut, uint32_t aPitchInPix)
+ {
++    return; // DualScreenTV presents the unmodified game image.
++
+    if(FramesWithPointer-- < 0)
+       return;
+ 
+@@ -234,6 +236,8 @@ static void DrawPointer(uint16_t* aOut, uint32_t aPitchInPix)
+ 
+ static void DrawPointerHybrid(uint16_t* aOut, uint32_t aPitchInPix, bool large)
+ {
++    return; // DualScreenTV presents the unmodified game image.
++
+     unsigned height,width;
+     unsigned DrawX, DrawY;
+     int factor;
+@@ -1949,32 +1953,9 @@ void retro_run (void)
+          int16_t mouseY        = input_cb(0, RETRO_DEVICE_POINTER, 0, RETRO_DEVICE_ID_POINTER_Y);
+          rotate_input(mouseX, mouseY, input_rotation);
+ 
+-         int x = ((int) mouseX + 0x8000) * layout.width / 0x10000;
+-         int y = ((int) mouseY + 0x8000) * layout.height / 0x10000;
+-
+-         if (hybrid_layout_scale != 1 && current_layout == LAYOUT_HYBRID_BOTTOM_ONLY && !hybrid_cursor_always_smallscreen)
+-         {
+-             /* Hybrid: We're on the big screen at triple scale, so triple the size */
+-             touch_area_width *= hybrid_layout_scale;
+-             touch_area_height *= hybrid_layout_scale;
+-         }
+-         else if ((hybrid_layout_scale == 1)
+-                  && ((current_layout == LAYOUT_HYBRID_TOP_ONLY)  ||
+-                      (current_layout == LAYOUT_HYBRID_BOTTOM_ONLY && hybrid_cursor_always_smallscreen && hybrid_layout_showbothscreens)))
+-         {
+-             /* Hybrid: We're on the small screen at hybrid scale 1, so 1/3 the size */
+-             touch_area_width /= hybrid_layout_ratio;
+-             touch_area_height /= hybrid_layout_ratio;
+-         }
+-
+-         if ((x >= layout.touch_x) && (x < layout.touch_x + touch_area_width) &&
+-               (y >= layout.touch_y) && (y < layout.touch_y + touch_area_height))
+-         {
+-            have_touch = true;
+-
+-            TouchX = (x - layout.touch_x) * GPU_LR_FRAMEBUFFER_NATIVE_WIDTH / touch_area_width;
+-            TouchY = (y - layout.touch_y) * GPU_LR_FRAMEBUFFER_NATIVE_HEIGHT / touch_area_height;
+-         }
++         have_touch = true;
++         TouchX = ((int)mouseX + 32768) * 256 / 65536 * scale;
++         TouchY = ((int)mouseY + 32768) * 192 / 65536 * scale;
+       }
+    }
+ 
+@@ -1997,7 +1978,7 @@ void retro_run (void)
+          (ret & (1 << RETRO_DEVICE_ID_JOYPAD_L      )),
+          (ret & (1 << RETRO_DEVICE_ID_JOYPAD_R      )),
+          0, // debug
+-         (ret & (1 << RETRO_DEVICE_ID_JOYPAD_L2     )) //Lid
++         0 // Lid stays open; trigger shortcuts belong to the frontend.
+          );
+ 
+    if (ret & (1 << RETRO_DEVICE_ID_JOYPAD_L3))
+@@ -2008,7 +1989,7 @@ void retro_run (void)
+    // BUTTONS
+    NDS_beginProcessingInput();
+ 
+-   if((ret & (1 << RETRO_DEVICE_ID_JOYPAD_R3)) && delay_timer == 0)
++   if(false && delay_timer == 0)
+    {
+       switch (current_layout)
+       {
+@@ -2284,7 +2265,7 @@ void retro_run (void)
+ #endif
+    }
+    else
+-      video_cb(skipped ? 0 : screen_buf, layout.width, layout.height, layout.pitch * 2);
++      video_cb(skipped ? 0 : screen_buf, layout.width, layout.height, layout.pitch * bpp);
+ 
+    frameIndex = skipped ? frameIndex : 0;
+ }

@@ -1,0 +1,23 @@
+--- a/src/citra_libretro/emu_window/libretro_window.cpp
++++ b/src/citra_libretro/emu_window/libretro_window.cpp
+@@ -2,6 +2,9 @@
+ // Licensed under GPLv2 or any later version
+ // Refer to the license.txt file included.
+ 
++#ifdef ENABLE_METAL
++#include "MetalScreenBlit.h"
++#endif
+ #ifdef ENABLE_OPENGL
+ #include <glad/glad.h>
+ #endif
+@@ -148,6 +151,10 @@
+             // Landscape display dimensions (transposed from portrait storage)
+             const u32 native_w = info.height;
+             const u32 native_h = info.width;
++#ifdef ENABLE_METAL
++            if(AzaharMetal::BlitExactRGBA(info.pixels.data(),info.pixels.size(),native_w,native_h,
++                data,pitch,height,rect.left,rect.top,rect_w,rect_h))return;
++#endif
+ 
+             for (u32 oy = 0; oy < rect_h; oy++) {
+                 for (u32 ox = 0; ox < rect_w; ox++) {

@@ -1,0 +1,25 @@
+diff --git a/src/core/arm/dyncom/arm_dyncom_dec.cpp b/src/core/arm/dyncom/arm_dyncom_dec.cpp
+index ce8fbd9..3d2f7db 100644
+--- a/src/core/arm/dyncom/arm_dyncom_dec.cpp
++++ b/src/core/arm/dyncom/arm_dyncom_dec.cpp
+@@ -4,2 +4,3 @@
+ 
++#include <array>
+ #include "core/arm/dyncom/arm_dyncom_dec.h"
+@@ -443,2 +444,12 @@ const InstructionSetEncodingItem arm_exclusion_code[] = {
+ ARMDecodeStatus DecodeARMInstruction(u32 instr, int* idx) {
++    // Decoding is a pure function of the instruction word, independent of guest
++    // addresses/page tables. Keep exact tags so collisions and self-modifying
++    // code cannot reuse the wrong result. Bound memory to 128 KiB per host thread.
++    struct DecodeEntry { u32 word; int index_plus_one; };
++    static thread_local std::array<DecodeEntry, 16384> decode_cache{};
++    auto& cached = decode_cache[(instr * 0x9e3779b9u) >> 18];
++    if (cached.index_plus_one && cached.word == instr) {
++        *idx = cached.index_plus_one - 1;
++        return ARMDecodeStatus::SUCCESS;
++    }
+     int n = 0;
+@@ -498,2 +509,3 @@ ARMDecodeStatus DecodeARMInstruction(u32 instr, int* idx) {
+             *idx = i;
++            cached = {instr, i + 1};
+             return ret;

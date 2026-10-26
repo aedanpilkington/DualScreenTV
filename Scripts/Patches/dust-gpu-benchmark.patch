@@ -1,0 +1,587 @@
+diff --git a/render/wgpu-2d/src/common/gfx.rs b/render/wgpu-2d/src/common/gfx.rs
+index ed84994..c001f30 100644
+--- a/render/wgpu-2d/src/common/gfx.rs
++++ b/render/wgpu-2d/src/common/gfx.rs
+@@ -10,7 +10,7 @@ use std::{
+         Arc,
+     },
+     thread,
+-    // time::Duration,
++    time::Duration,
+ };
+ 
+ pub enum Renderer3dRx {
+@@ -62,14 +62,15 @@ impl Drop for Renderer3dGfxThreadData {
+ }
+ 
+ pub struct OutputAttachments {
++    texture: Arc<wgpu::Texture>,
+     color_view: wgpu::TextureView,
+ }
+ 
+ impl OutputAttachments {
+-    pub fn new(device: &wgpu::Device, resolution_scale_shift: u8) -> (Self, wgpu::TextureView) {
+-        let resolution_scale = 1 << resolution_scale_shift;
++    pub fn new(device: &wgpu::Device, resolution_scale_factor: u8) -> (Self, wgpu::TextureView) {
++        let resolution_scale = u32::from(resolution_scale_factor);
+ 
+-        let color = device.create_texture(&wgpu::TextureDescriptor {
++        let color = Arc::new(device.create_texture(&wgpu::TextureDescriptor {
+             label: Some("2D renderer color"),
+             size: wgpu::Extent3d {
+                 width: SCREEN_WIDTH as u32 * resolution_scale,
+@@ -80,9 +81,9 @@ impl OutputAttachments {
+             sample_count: 1,
+             dimension: wgpu::TextureDimension::D2,
+             format: wgpu::TextureFormat::Rgba8Unorm,
+-            usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::TEXTURE_BINDING,
++            usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_SRC,
+             view_formats: &[],
+-        });
++        }));
+         let color_view = color.create_view(&wgpu::TextureViewDescriptor {
+             label: Some("2D renderer color view"),
+             ..wgpu::TextureViewDescriptor::default()
+@@ -90,7 +91,7 @@ impl OutputAttachments {
+ 
+         let color_view_clone = color.create_view(&Default::default());
+ 
+-        (OutputAttachments { color_view }, color_view_clone)
++        (OutputAttachments { texture: color, color_view }, color_view_clone)
+     }
+ }
+ 
+@@ -122,20 +123,24 @@ impl FrontendChannels {
+ }
+ 
+ pub struct SharedData {
++    pub submitted_frame: AtomicU64,
++    pub output_texture: RwLock<Option<Arc<wgpu::Texture>>>,
+     stopped: AtomicBool,
+-    resolution_scale_shift: AtomicU8,
++    resolution_scale_factor: AtomicU8,
+ }
+ 
+ impl SharedData {
+-    pub fn new(resolution_scale_shift: u8) -> Self {
++    pub fn new(resolution_scale_factor: u8) -> Self {
+         SharedData {
++            submitted_frame: AtomicU64::new(0),
++            output_texture: RwLock::new(None),
+             stopped: AtomicBool::new(false),
+-            resolution_scale_shift: AtomicU8::new(resolution_scale_shift),
++            resolution_scale_factor: AtomicU8::new(resolution_scale_factor),
+         }
+     }
+ 
+-    pub fn set_resolution_scale_shift(&self, value: u8) {
+-        self.resolution_scale_shift.store(value, Ordering::Relaxed);
++    pub fn set_resolution_scale_factor(&self, value: u8) {
++        self.resolution_scale_factor.store(value, Ordering::Relaxed);
+     }
+ }
+ 
+@@ -224,7 +229,7 @@ impl GfxData {
+         shared_data: Arc<SharedData>,
+         color_output_view_tx: crossbeam_channel::Sender<wgpu::TextureView>,
+         renderer_3d_rx_rx: crossbeam_channel::Receiver<Renderer3dRx>,
+-        resolution_scale_shift: u8,
++        resolution_scale_factor: u8,
+         renderer_3d_rx: Renderer3dRx,
+     ) -> (Self, wgpu::TextureView) {
+         let (renderer_3d_render_data, renderer_3d_gfx_data) =
+@@ -244,7 +249,7 @@ impl GfxData {
+             GfxThreadChannels {
+                 color_output_view_tx,
+             },
+-            resolution_scale_shift,
++            resolution_scale_factor,
+             frame_data_rx,
+             renderer_3d_gfx_data,
+             renderer_3d_data_rx,
+@@ -357,7 +362,7 @@ struct GfxThreadData {
+     queue: Arc<wgpu::Queue>,
+     channels: GfxThreadChannels,
+     shared_data: Arc<SharedData>,
+-    resolution_scale_shift: u8,
++    resolution_scale_factor: u8,
+     frame_data_rx: triple_buffer::Receiver<FrameData>,
+ 
+     output_attachments: OutputAttachments,
+@@ -528,7 +533,7 @@ impl GfxThreadData {
+         queue: Arc<wgpu::Queue>,
+         shared_data: Arc<SharedData>,
+         channels: GfxThreadChannels,
+-        resolution_scale_shift: u8,
++        resolution_scale_factor: u8,
+         frame_data_rx: triple_buffer::Receiver<FrameData>,
+         renderer_3d_data: Renderer3dUpdateGfxThreadData,
+         renderer_3d_data_rx: crossbeam_channel::Receiver<Renderer3dUpdateGfxThreadData>,
+@@ -601,7 +606,8 @@ impl GfxThreadData {
+         });
+ 
+         let (output_attachments, color_output_view) =
+-            OutputAttachments::new(&device, resolution_scale_shift);
++            OutputAttachments::new(&device, resolution_scale_factor);
++        *shared_data.output_texture.write() = Some(Arc::clone(&output_attachments.texture));
+ 
+         let (pipeline, color_output_3d_bg_layout) = Self::create_pipeline_and_output_3d_bg_layout(
+             &device,
+@@ -624,7 +630,7 @@ impl GfxThreadData {
+                 queue,
+                 channels,
+                 shared_data,
+-                resolution_scale_shift,
++                resolution_scale_factor,
+                 frame_data_rx,
+ 
+                 output_attachments,
+@@ -652,14 +658,15 @@ impl GfxThreadData {
+                 break;
+             }
+             if let Ok(frame) = self.frame_data_rx.get() {
+-                let resolution_scale_shift = self
++                let resolution_scale_factor = self
+                     .shared_data
+-                    .resolution_scale_shift
++                    .resolution_scale_factor
+                     .load(Ordering::Relaxed);
+-                if resolution_scale_shift != self.resolution_scale_shift {
+-                    self.resolution_scale_shift = resolution_scale_shift;
++                if resolution_scale_factor != self.resolution_scale_factor {
++                    self.resolution_scale_factor = resolution_scale_factor;
+                     let (output_attachments, color_output_view) =
+-                        OutputAttachments::new(&self.device, resolution_scale_shift);
++                        OutputAttachments::new(&self.device, resolution_scale_factor);
++                    *self.shared_data.output_texture.write() = Some(Arc::clone(&output_attachments.texture));
+                     self.output_attachments = output_attachments;
+                     self.channels.set_color_output_view(color_output_view);
+                 }
+@@ -688,6 +695,16 @@ impl GfxThreadData {
+                     );
+                 }
+ 
++                // Wait before opening the 2D encoder/pass: holding its resource
++                // locks while the 3D worker creates pipelines can deadlock wgpu.
++                if frame.engine_3d_enabled {
++                    if let Renderer3dGfxThreadData::Accel { last_submitted_frame, .. } = &self.renderer_3d_data {
++                        while last_submitted_frame.0.load(Ordering::Acquire) < frame.frame_index {
++                            if self.shared_data.stopped.load(Ordering::Relaxed) { return; }
++                            thread::park_timeout(Duration::from_millis(1));
++                        }
++                    }
++                }
+                 if frame.engine_3d_enabled {
+                     match &mut self.renderer_3d_data {
+                         Renderer3dGfxThreadData::Soft { .. } => {}
+@@ -805,6 +822,7 @@ impl GfxThreadData {
+                 // }
+ 
+                 self.queue.submit([command_encoder.finish()]);
++                self.shared_data.submitted_frame.store(frame.frame_index + 1, Ordering::Release);
+             } else {
+                 thread::park();
+             }
+diff --git a/render/wgpu-2d/src/threaded/lockstep_scanlines.rs b/render/wgpu-2d/src/threaded/lockstep_scanlines.rs
+index 0f3b787..b221754 100644
+--- a/render/wgpu-2d/src/threaded/lockstep_scanlines.rs
++++ b/render/wgpu-2d/src/threaded/lockstep_scanlines.rs
+@@ -145,6 +145,9 @@ pub struct FrontendChannels {
+ }
+ 
+ impl FrontendChannels {
++    pub fn submitted_frame(&self) -> u64 { self.common_shared_data.submitted_frame.load(Ordering::Acquire) }
++    pub fn output_texture(&self) -> Option<Arc<wgpu::Texture>> { self.common_shared_data.output_texture.read().clone() }
++
+     pub fn new_color_output_view(&self) -> Option<wgpu::TextureView> {
+         self.common.new_color_output_view()
+     }
+@@ -153,8 +156,8 @@ impl FrontendChannels {
+         self.common.set_renderer_3d_rx(renderer_3d_rx);
+     }
+ 
+-    pub fn set_resolution_scale_shift(&self, value: u8) {
+-        self.common_shared_data.set_resolution_scale_shift(value);
++    pub fn set_resolution_scale_factor(&self, value: u8) {
++        self.common_shared_data.set_resolution_scale_factor(value);
+     }
+ }
+ 
+@@ -168,7 +171,7 @@ impl Renderer {
+     pub fn new(
+         device: Arc<wgpu::Device>,
+         queue: Arc<wgpu::Queue>,
+-        resolution_scale_shift: u8,
++        resolution_scale_factor: u8,
+         renderer_3d_rx: Renderer3dRx,
+     ) -> (Self, wgpu::TextureView, FrontendChannels) {
+         const BG: Bg = Bg {
+@@ -203,7 +206,7 @@ impl Renderer {
+             capture_height: 128,
+         };
+ 
+-        let common_shared_data = Arc::new(gfx::SharedData::new(resolution_scale_shift));
++        let common_shared_data = Arc::new(gfx::SharedData::new(resolution_scale_factor));
+ 
+         let shared_data = Arc::new(unsafe {
+             SharedData {
+@@ -242,7 +245,7 @@ impl Renderer {
+             renderer_3d_rx_rx,
+             Arc::clone(&common_shared_data),
+             Arc::clone(&shared_data),
+-            resolution_scale_shift,
++            resolution_scale_factor,
+             renderer_3d_rx,
+         );
+ 
+@@ -566,7 +569,7 @@ impl ThreadData {
+         renderer_3d_rx_rx: crossbeam_channel::Receiver<Renderer3dRx>,
+         common_shared_data: Arc<gfx::SharedData>,
+         shared_data: Arc<SharedData>,
+-        resolution_scale_shift: u8,
++        resolution_scale_factor: u8,
+         renderer_3d_rx: Renderer3dRx,
+     ) -> (Self, wgpu::TextureView) {
+         macro_rules! buffers {
+@@ -586,7 +589,7 @@ impl ThreadData {
+             Arc::clone(&common_shared_data),
+             color_output_view_tx,
+             renderer_3d_rx_rx,
+-            resolution_scale_shift,
++            resolution_scale_factor,
+             renderer_3d_rx,
+         );
+ 
+diff --git a/render/wgpu-3d/src/lib.rs b/render/wgpu-3d/src/lib.rs
+index b64581e..f141524 100644
+--- a/render/wgpu-3d/src/lib.rs
++++ b/render/wgpu-3d/src/lib.rs
+@@ -95,7 +95,7 @@ proc_bitfield::bitfield! {
+         pub w_buffering: bool @ 6,
+         pub attrs_enabled: bool @ 7,
+         pub fog_enabled: bool @ 8,
+-        pub edge_marking_enabled: bool @ 8,
++        pub edge_marking_enabled: bool @ 9,
+     }
+ }
+ 
+@@ -630,11 +630,11 @@ struct OutputAttachments {
+ impl OutputAttachments {
+     fn new(
+         device: &wgpu::Device,
+-        resolution_scale_shift: u8,
++        resolution_scale_factor: u8,
+         color_bg_layout: &wgpu::BindGroupLayout,
+         depth_attrs_bg_layout: &wgpu::BindGroupLayout,
+     ) -> Self {
+-        let resolution_scale = 1 << resolution_scale_shift;
++        let resolution_scale = u32::from(resolution_scale_factor);
+ 
+         let color = [0, 1].map(|_| {
+             let color = device.create_texture(&wgpu::TextureDescriptor {
+@@ -751,7 +751,7 @@ pub struct Renderer {
+     device: Arc<wgpu::Device>,
+     queue: Arc<wgpu::Queue>,
+ 
+-    resolution_scale_shift: u8,
++    resolution_scale_factor: u8,
+     // hi_res_coords_mask: u16x2,
+     color_output_index: u8,
+     output_attachments: OutputAttachments,
+@@ -790,6 +790,7 @@ pub struct Renderer {
+     edge_colors_buffer: wgpu::Buffer,
+     edge_colors_bg: wgpu::BindGroup,
+ 
++    pipeline_cache_path: Option<std::path::PathBuf>,
+     opaque_pipelines: HashMap<PipelineKey, wgpu::RenderPipeline>,
+     trans_pipelines: HashMap<PipelineKey, [wgpu::RenderPipeline; 2]>,
+     trans_no_depth_update_pipelines: HashMap<PipelineKey, [wgpu::RenderPipeline; 2]>,
+@@ -803,12 +804,12 @@ impl Renderer {
+     pub fn new(
+         device: Arc<wgpu::Device>,
+         queue: Arc<wgpu::Queue>,
+-        resolution_scale_shift: u8,
++        resolution_scale_factor: u8,
+     ) -> Self {
+         let device_limits = device.limits();
+         let min_uniform_buffer_offset_alignment = device_limits.min_uniform_buffer_offset_alignment;
+ 
+-        // let hi_res_coords_mask = u16x2::splat(!(0x10 >> resolution_scale_shift.min(4)) - 1);
++        // let hi_res_coords_mask = u16x2::splat(!(0x10 >> resolution_scale_factor.min(4)) - 1);
+ 
+         let vert_buffer = device.create_buffer(&wgpu::BufferDescriptor {
+             label: Some("3D renderer vertices"),
+@@ -1074,7 +1075,7 @@ impl Renderer {
+ 
+         let output_attachments = OutputAttachments::new(
+             &device,
+-            resolution_scale_shift,
++            resolution_scale_factor,
+             &color_bg_layout,
+             &depth_attrs_bg_layout,
+         );
+@@ -1101,11 +1102,11 @@ impl Renderer {
+             render::edge_marking::create_pipeline(true, &device, &bg_layouts),
+         ];
+ 
+-        Renderer {
++        let mut renderer = Renderer {
+             device,
+             queue,
+ 
+-            resolution_scale_shift,
++            resolution_scale_factor,
+             // hi_res_coords_mask,
+             color_output_index: 0,
+             output_attachments,
+@@ -1148,6 +1149,7 @@ impl Renderer {
+             edge_colors_buffer,
+             edge_colors_bg,
+ 
++            pipeline_cache_path: std::env::var_os("DSTV_DUST_PIPELINES").map(std::path::PathBuf::from),
+             opaque_pipelines: HashMap::default(),
+             trans_pipelines: HashMap::default(),
+             trans_no_depth_update_pipelines: HashMap::default(),
+@@ -1155,7 +1157,31 @@ impl Renderer {
+             edge_marking_pipelines,
+ 
+             batches: Vec::new(),
++        };
++        renderer.warm_pipelines();
++        renderer
++    }
++
++    fn warm_pipelines(&mut self) {
++        let Some(path) = &self.pipeline_cache_path else { return; };
++        let Ok(metadata) = std::fs::metadata(path) else { return; };
++        if metadata.len() > 65536 { return; }
++        let Ok(bytes) = std::fs::read(path) else { return; };
++        let mut warmed = 0;
++        // Store portable pipeline descriptions, never driver binaries. Bound
++        // startup work; additional unseen variants compile on demand as usual.
++        for record in bytes.chunks_exact(3).take(32) {
++            let key = PipelineKey(u16::from_le_bytes([record[1], record[2]]));
++            if key.0 > 1023 { continue; }
++            match record[0] {
++                0 => { self.opaque_pipelines.entry(key).or_insert_with(|| render::opaque::create_pipeline(key, &self.device, &self.bg_layouts)); }
++                1 => { self.trans_pipelines.entry(key).or_insert_with(|| render::trans::create_pipeline(key, true, &self.device, &self.bg_layouts)); }
++                2 => { self.trans_no_depth_update_pipelines.entry(key).or_insert_with(|| render::trans::create_pipeline(key, false, &self.device, &self.bg_layouts)); }
++                _ => continue,
++            }
++            warmed += 1;
+         }
++        println!("Dust GPU pipelines prewarmed: {warmed}");
+     }
+ 
+     #[inline]
+@@ -1169,15 +1195,15 @@ impl Renderer {
+     }
+ 
+     #[inline]
+-    pub fn resolution_scale_shift(&self) -> u8 {
+-        self.resolution_scale_shift
++    pub fn resolution_scale_factor(&self) -> u8 {
++        self.resolution_scale_factor
+     }
+ 
+-    pub fn set_resolution_scale_shift(&mut self, value: u8) {
+-        if value == self.resolution_scale_shift {
++    pub fn set_resolution_scale_factor(&mut self, value: u8) {
++        if value == self.resolution_scale_factor {
+             return;
+         }
+-        self.resolution_scale_shift = value;
++        self.resolution_scale_factor = value;
+         self.output_attachments = OutputAttachments::new(
+             &self.device,
+             value,
+@@ -1388,6 +1414,7 @@ impl Renderer {
+ 
+                         if pipeline_changed {
+                             self.opaque_pipelines.entry(pipeline).or_insert_with(|| {
++                                record_pipeline(&self.pipeline_cache_path, 0, pipeline);
+                                 render::opaque::create_pipeline(
+                                     pipeline,
+                                     &self.device,
+@@ -1442,6 +1469,7 @@ impl Renderer {
+ 
+                         if pipeline_changed {
+                             self.trans_pipelines.entry(pipeline).or_insert_with(|| {
++                                record_pipeline(&self.pipeline_cache_path, 1, pipeline);
+                                 render::trans::create_pipeline(
+                                     pipeline,
+                                     true,
+@@ -1499,6 +1527,7 @@ impl Renderer {
+                             self.trans_no_depth_update_pipelines
+                                 .entry(pipeline)
+                                 .or_insert_with(|| {
++                                    record_pipeline(&self.pipeline_cache_path, 2, pipeline);
+                                     render::trans::create_pipeline(
+                                         pipeline,
+                                         false,
+@@ -1987,3 +2016,23 @@ impl Renderer {
+         command_encoder.finish()
+     }
+ }
++
++fn record_pipeline(path: &Option<std::path::PathBuf>, kind: u8, key: PipelineKey) {
++    use std::io::Write;
++    let Some(path) = path else { return; };
++    if std::fs::metadata(path).map(|m| m.len() >= 65536).unwrap_or(false) { return; }
++    if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open(path) {
++        let [lo, hi] = key.0.to_le_bytes();
++        let _ = file.write_all(&[kind, lo, hi]);
++    }
++}
++#[cfg(test)] mod dstv_pipeline_tests {
++    use super::*;
++    #[test] fn fog_and_edges_have_independent_keys() {
++        let fog = PipelineKey(0).with_fog_enabled(true);
++        let edges = PipelineKey(0).with_edge_marking_enabled(true);
++        assert_ne!(fog, edges);
++        assert!(!fog.edge_marking_enabled());
++        assert!(!edges.fog_enabled());
++    }
++}
+diff --git a/render/wgpu-3d/src/threaded.rs b/render/wgpu-3d/src/threaded.rs
+index bf75975..0a49d92 100644
+--- a/render/wgpu-3d/src/threaded.rs
++++ b/render/wgpu-3d/src/threaded.rs
+@@ -24,7 +24,7 @@ use std::{
+ 
+ struct SharedData {
+     stopped: AtomicBool,
+-    resolution_scale_shift: AtomicU8,
++    resolution_scale_factor: AtomicU8,
+ 
+     capture_rendering_data: Box<UnsafeCell<soft::RenderingData>>,
+     capture_scanline_buffer: Box<UnsafeCell<[Scanline<u32>; SCREEN_HEIGHT]>>,
+@@ -64,11 +64,11 @@ impl Tx {
+         }
+     }
+ 
+-    fn finish_frame(&mut self) {
++    fn finish_frame(&mut self, render: bool) {
+         let frame = self.frame_tx.current();
+         frame.frame_index = self.cur_frame_index;
+         self.cur_frame_index += 1;
+-        frame.render = true;
++        frame.render = render;
+         self.frame_tx.finish();
+         self.thread.as_ref().unwrap().thread().unpark();
+     }
+@@ -84,6 +84,7 @@ impl RendererTx for Tx {
+             self.shared_data
+                 .capture_processing_scanline
+                 .store(u8::MAX, Ordering::Release);
++            self.thread.as_ref().unwrap().thread().unpark();
+         }
+     }
+ 
+@@ -141,11 +142,11 @@ impl RendererTx for Tx {
+             mem::replace(&mut self.texture_dirty[i], 0),
+             mem::replace(&mut self.tex_pal_dirty[i], 0),
+         );
+-        self.finish_frame();
++        self.finish_frame(true);
+     }
+ 
+     fn skip_rendering(&mut self) {
+-        self.finish_frame();
++        self.finish_frame(false);
+     }
+ }
+ 
+@@ -204,9 +205,9 @@ pub struct FrontendChannels {
+ }
+ 
+ impl FrontendChannels {
+-    pub fn set_resolution_scale_shift(&self, value: u8) {
++    pub fn set_resolution_scale_factor(&self, value: u8) {
+         self.shared_data
+-            .resolution_scale_shift
++            .resolution_scale_factor
+             .store(value, Ordering::Relaxed);
+     }
+ }
+@@ -217,15 +218,17 @@ pub struct Rx2dData {
+     pub last_submitted_frame: Arc<(AtomicU64, RwLock<Option<thread::Thread>>)>,
+ }
+ 
++pub static GPU_SUBMITTED_FRAMES: AtomicU64 = AtomicU64::new(0);
++
+ pub fn init(
+     device: Arc<wgpu::Device>,
+     queue: Arc<wgpu::Queue>,
+-    resolution_scale_shift: u8,
++    resolution_scale_factor: u8,
+ ) -> (Tx, Rx, FrontendChannels, Rx2dData) {
+     let shared_data = Arc::new(unsafe {
+         SharedData {
+             stopped: AtomicBool::new(false),
+-            resolution_scale_shift: AtomicU8::new(resolution_scale_shift),
++            resolution_scale_factor: AtomicU8::new(resolution_scale_factor),
+ 
+             capture_rendering_data: Box::new_zeroed().assume_init(),
+             capture_scanline_buffer: Box::new_zeroed().assume_init(),
+@@ -236,7 +239,7 @@ pub fn init(
+ 
+     let (frame_tx, mut frame_rx) = unsafe { triple_buffer::init_zeroed() };
+ 
+-    let mut renderer = Renderer::new(device, queue, resolution_scale_shift);
++    let mut renderer = Renderer::new(device, queue, resolution_scale_factor);
+ 
+     let color_output_view = renderer.create_output_view();
+     let (color_output_view_tx, color_output_view_rx) = crossbeam_channel::unbounded();
+@@ -292,36 +295,26 @@ pub fn init(
+                             }
+                             if let Ok(frame) = frame_rx.get() {
+                                 if frame.render {
+-                                    let resolution_scale_shift =
+-                                        shared_data.resolution_scale_shift.load(Ordering::Relaxed);
+-                                    let mut color_output_updated = false;
+-
+-                                    if color_output_index != renderer.color_output_index() {
+-                                        color_output_updated = true;
+-                                        color_output_index = renderer.color_output_index();
+-                                    }
+-
+-                                    if resolution_scale_shift != renderer.resolution_scale_shift() {
+-                                        color_output_updated = true;
+-                                        renderer.set_resolution_scale_shift(resolution_scale_shift);
++                                    let resolution_scale_factor =
++                                        shared_data.resolution_scale_factor.load(Ordering::Relaxed);
++                                    let resized = resolution_scale_factor != renderer.resolution_scale_factor();
++                                    if resized {
++                                        renderer.set_resolution_scale_factor(resolution_scale_factor);
+                                     }
+-
+-                                    if color_output_updated {
+-                                        color_output_view_tx
+-                                            .send(renderer.create_output_view())
+-                                            .expect(
+-                                                "couldn't send 3D output texture view to UI thread",
+-                                            );
++                                    let command_buffer = renderer.render_frame(&frame.rendering_data);
++                                    renderer.queue().submit([command_buffer]);
++                                    GPU_SUBMITTED_FRAMES.fetch_add(1, Ordering::Relaxed);
++                                    // Fog/edge passes can switch the final color attachment.
++                                    // Publish the view selected by this frame, then readiness.
++                                    if resized || color_output_index != renderer.color_output_index() {
++                                        color_output_index = renderer.color_output_index();
++                                        color_output_view_tx.send(renderer.create_output_view())
++                                            .expect("couldn't send 3D output texture view to UI thread");
+                                     }
+-
+-                                    // FIXME: Depends on https://github.com/gfx-rs/wgpu/issues/5572
+-                                    // let command_buffer =
+-                                    //     renderer.render_frame(&frame.rendering_data);
+-                                    // renderer.queue().submit([command_buffer]);
+                                 }
+                                 last_submitted_frame
+                                     .0
+-                                    .store(frame.frame_index, Ordering::Relaxed);
++                                    .store(frame.frame_index, Ordering::Release);
+                                 if let Some(thread) = &*last_submitted_frame.1.read() {
+                                     thread.unpark();
+                                 }

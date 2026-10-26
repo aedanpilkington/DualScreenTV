@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict><key>PreferenceSpecifiers</key><array>
+<dict><key>Type</key><string>PSGroupSpecifier</string><key>Title</key><string>Automatic Save Backups</string><key>FooterText</key><string>Open Save Backups in the Mac or iPad companion and pair with the Add/Edit Games code. Keep the companion open and return to the TV library after saving. Verified copies stay on that device even if tvOS clears local storage. This does not enable iCloud backups.</string></dict>
+<dict><key>Type</key><string>PSToggleSwitchSpecifier</string><key>Title</key><string>Allow Paired Backup Devices</string><key>Key</key><string>backup.enabled</string><key>DefaultValue</key><true/></dict>
+<dict><key>Type</key><string>PSGroupSpecifier</string><key>FooterText</key><string>Enable Forget Paired Backup Devices, then return to the app library. Devices must enter the current code to pair again. Their existing backup files are kept. This switch resets automatically.</string></dict>
+<dict><key>Type</key><string>PSToggleSwitchSpecifier</string><key>Title</key><string>Forget Paired Backup Devices</string><key>Key</key><string>backup.forgetDevices</string><key>DefaultValue</key><false/></dict>
+</array><key>StringsTable</key><string>Root</string></dict></plist>

@@ -1,0 +1,70 @@
+--- a/src/video_core/renderer_software/renderer_software.h
++++ b/src/video_core/renderer_software/renderer_software.h
+@@ -11,6 +11,9 @@
+ class System;
+ }
+ 
++#ifdef ENABLE_METAL
++namespace AzaharMetal::Scanout { struct Cache; }
++#endif
+ namespace SwRenderer {
+ 
+ struct ScreenInfo {
+@@ -45,6 +48,9 @@
+     Pica::PicaCore& pica;
+     RasterizerSoftware rasterizer;
+     std::array<ScreenInfo, 3> screen_infos{};
++#ifdef ENABLE_METAL
++    std::array<std::unique_ptr<AzaharMetal::Scanout::Cache>,2> native_scanout_cache;
++#endif
+ };
+ 
+ } // namespace SwRenderer
+--- a/src/video_core/renderer_software/renderer_software.cpp
++++ b/src/video_core/renderer_software/renderer_software.cpp
+@@ -8,12 +8,19 @@
+ #include "video_core/pica/pica_core.h"
+ #include "video_core/renderer_software/renderer_software.h"
+ 
++#ifdef ENABLE_METAL
++#include "SoftwareScanout.h"
++#endif
+ namespace SwRenderer {
+ 
+ RendererSoftware::RendererSoftware(Core::System& system, Pica::PicaCore& pica_,
+                                    Frontend::EmuWindow& window)
+     : VideoCore::RendererBase{system, window, nullptr}, memory{system.Memory()}, pica{pica_},
+-      rasterizer{memory, pica} {}
++      rasterizer{memory, pica} {
++#ifdef ENABLE_METAL
++    for(auto& cache:native_scanout_cache)cache=std::make_unique<AzaharMetal::Scanout::Cache>();
++#endif
++}
+ 
+ RendererSoftware::~RendererSoftware() = default;
+ 
+@@ -27,6 +34,11 @@
+ void RendererSoftware::PrepareRenderTarget() {
+     const auto& regs_lcd = pica.regs_lcd;
+     for (u32 i = 0; i < 3; i++) {
++#ifdef ENABLE_METAL
++        // The pinned software path loads the same left-eye address for both
++        // top entries. Copy that exact result instead of decoding it twice.
++        if(i==1) {screen_infos[1]=screen_infos[0];continue;}
++#endif
+         const u32 fb_id = i == 2 ? 1 : 0;
+ 
+         const auto color_fill = fb_id == 0 ? regs_lcd.color_fill_top : regs_lcd.color_fill_bottom;
+@@ -49,6 +61,12 @@
+     info.width = pixel_stride;
+     info.pixels.resize(info.width * info.height * 4);
+ 
++#ifdef ENABLE_METAL
++    const auto memory_ref=memory.GetPhysicalRef(framebuffer_addr);
++    if(native_scanout_cache[fb_id]->Update(info.pixels,framebuffer_data,memory_ref.GetSize(),
++        info.width,info.height,framebuffer.color_format,color_fill.is_enabled,
++        {u8(color_fill.color_r),u8(color_fill.color_g),u8(color_fill.color_b),255}))return;
++#endif
+     for (u32 y = 0; y < info.height; y++) {
+         for (u32 x = 0; x < info.width; x++) {
+             const u8* pixel = framebuffer_data + (y * pixel_stride + pixel_stride - x) * bpp;

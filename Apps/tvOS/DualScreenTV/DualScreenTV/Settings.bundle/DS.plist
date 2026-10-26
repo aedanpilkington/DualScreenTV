@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PreferenceSpecifiers</key>
+	<array>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Dust GPU Core (Experimental)</string>
+			<key>FooterText</key>
+			<string>Alternative DS core with Metal-backed GPU 2D/3D rendering. Overrides the DeSmuME core below. Supports every fixed resolution from 1× to 8×. Automatic resolution does not apply. Core changes require reopening the game. Dust, DeSmuME and melonDS each keep separate in-game saves. Switching cores does not transfer progress. Dust save states are unavailable. Compatibility and captured-image quality vary by game.</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Use Dust GPU Core (Experimental)</string>
+			<key>Key</key>
+			<string>graphics.ds.dustGPUCore</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Limit Dust Output to 4×</string>
+			<key>Key</key>
+			<string>graphics.ds.dustOutputLimit</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>FooterText</key>
+			<string>Keeps 8× 3D rendering while limiting the final image to 4× for smoother performance. Turn off for full 8× output. Applies on Resume Game. Dust’s 30 FPS option reduces display/readback work; game logic, audio and graphics needed for DS capture keep running at normal speed.</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>DeSmuME High-Resolution Core</string>
+			<key>FooterText</key>
+			<string>Uses DeSmuME with an experimental native Metal fragment renderer for higher-resolution 3D. Geometry setup and 2D composition still use the CPU. Core changes apply when reopening the game. Dust, DeSmuME and melonDS each keep separate in-game saves. Switching cores does not transfer progress or save states. Higher resolutions can reduce speed.</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Use DeSmuME Core (Experimental)</string>
+			<key>Key</key>
+			<string>graphics.ds.highResolutionCore</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>DeSmuME GPU Renderer (Experimental)</string>
+			<key>Key</key>
+			<string>graphics.ds.gpuRenderer</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Resolution and Performance</string>
+			<key>FooterText</key>
+			<string>Automatic resolution lowers internal resolution in demanding scenes and gradually raises it when there is headroom. DS Internal Resolution becomes the upper limit. Disable for a fixed resolution. Game speed and audio pitch stay unchanged.</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Automatic DS Resolution</string>
+			<key>Key</key>
+			<string>graphics.ds.automaticResolution</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>DS Internal Resolution</string>
+			<key>Key</key>
+			<string>graphics.ds.resolution</string>
+			<key>DefaultValue</key>
+			<integer>2</integer>
+			<key>Values</key>
+			<array>
+				<integer>1</integer>
+				<integer>2</integer>
+				<integer>3</integer>
+				<integer>4</integer>
+				<integer>5</integer>
+				<integer>6</integer>
+				<integer>7</integer>
+				<integer>8</integer>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>1× (256 × 192)</string>
+				<string>2× (512 × 384)</string>
+				<string>3× (768 × 576)</string>
+				<string>4× (1024 × 768)</string>
+				<string>5× (1280 × 960) — Experimental</string>
+				<string>6× (1536 × 1152) — Experimental</string>
+				<string>7× (1792 × 1344) — Experimental</string>
+				<string>8× (2048 × 1536) — Experimental</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>FooterText</key>
+			<string>Requires the high-resolution core above. Resolution changes apply on Resume Game without restarting that core. 2D artwork retains its original detail. Image enhancement is bypassed above native resolution. DS save-state slots below apply to the default melonDS core; use normal in-game saves with DeSmuME.</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>DS Output Frame Rate</string>
+			<key>FooterText</key>
+			<string>For the experimental high-resolution core. 30 FPS skips alternate rendering/output frames while game logic, input and audio continue at normal DS timing. Can reduce audio cuts when rendering is the bottleneck. Some games run at 60 FPS or use special screen/capture effects; choose 60 FPS for those games. Applies on Resume Game. Uses a small audio reserve in 30 FPS mode to absorb uneven rendering times. This cannot compensate for sustained slow emulation.</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>DS Output Frame Rate</string>
+			<key>Key</key>
+			<string>graphics.ds.presentationRate</string>
+			<key>DefaultValue</key>
+			<integer>60</integer>
+			<key>Values</key>
+			<array>
+				<integer>60</integer>
+				<integer>30</integer>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>60 FPS (Default)</string>
+				<string>30 FPS (Reduced Rendering Work)</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>DS Save States</string>
+			<key>FooterText</key>
+			<string>Save State and Load State are remappable controller actions. Slots are separate per game and do not replace in-game saves. Loading a state rewinds progress. These state slots apply to DS games; 3DS uses normal in-game saves.</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Active State Slot</string>
+			<key>Key</key>
+			<string>states.slot</string>
+			<key>DefaultValue</key>
+			<integer>1</integer>
+			<key>Values</key>
+			<array>
+				<integer>1</integer>
+				<integer>2</integer>
+				<integer>3</integer>
+				<integer>4</integer>
+				<integer>5</integer>
+				<integer>6</integer>
+				<integer>7</integer>
+				<integer>8</integer>
+				<integer>9</integer>
+				<integer>10</integer>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>Slot 1</string>
+				<string>Slot 2</string>
+				<string>Slot 3</string>
+				<string>Slot 4</string>
+				<string>Slot 5</string>
+				<string>Slot 6</string>
+				<string>Slot 7</string>
+				<string>Slot 8</string>
+				<string>Slot 9</string>
+				<string>Slot 10</string>
+			</array>
+		</dict>
+	</array>
+	<key>StringsTable</key>
+	<string>Root</string>
+</dict>
+</plist>

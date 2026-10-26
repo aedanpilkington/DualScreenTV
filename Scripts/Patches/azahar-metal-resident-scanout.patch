@@ -1,0 +1,35 @@
+--- a/src/video_core/renderer_software/renderer_software.h
++++ b/src/video_core/renderer_software/renderer_software.h
+@@ -32,13 +32,21 @@
+         return &rasterizer;
+     }
+ 
+-    [[nodiscard]] const ScreenInfo& Screen(VideoCore::ScreenId id) const noexcept {
++    [[nodiscard]]
++#ifdef ENABLE_METAL
++    virtual
++#endif
++    const ScreenInfo& Screen(VideoCore::ScreenId id) const noexcept {
+         return screen_infos[static_cast<u32>(id)];
+     }
+ 
+     void SwapBuffers() override;
+     void TryPresent(int timeout_ms, bool is_secondary) override {}
+ 
++#ifdef ENABLE_METAL
++protected:
++    virtual bool LoadNativeScreen(int,ScreenInfo&) {return false;}
++#endif
+ private:
+     void PrepareRenderTarget();
+     void LoadFBToScreenInfo(int i, const Pica::ColorFill& color_fill);
+--- a/src/video_core/renderer_software/renderer_software.cpp
++++ b/src/video_core/renderer_software/renderer_software.cpp
+@@ -62,6 +62,7 @@
+     info.pixels.resize(info.width * info.height * 4);
+ 
+ #ifdef ENABLE_METAL
++    if(!color_fill.is_enabled && LoadNativeScreen(i,info)) {native_scanout_cache[fb_id]->valid=false;return;}
+     const auto memory_ref=memory.GetPhysicalRef(framebuffer_addr);
+     if(native_scanout_cache[fb_id]->Update(info.pixels,framebuffer_data,memory_ref.GetSize(),
+         info.width,info.height,framebuffer.color_format,color_fill.is_enabled,
