@@ -106,6 +106,10 @@ You need:
    then **Product → Run**. Xcode builds, signs and installs the app. A first
    installation opens with an empty classic library.
 
+   _There may be a point where you have to accept settings in your VPN settings. I personally used Sideloadly
+   to bring the companion app to my iPad. If you are struggling, please just ask an AI to break this down step by step
+   and show what is happening on screen as most of my mates did that and got it working easier than me explaining._
+
 Apple's [signing workflow](https://help.apple.com/xcode/mac/current/en.lproj/dev60b6fbbc7.html),
 [device installation steps](https://help.apple.com/xcode/mac/current/en.lproj/dev5a825a1ca.html)
 and [App Groups setup](https://help.apple.com/xcode/mac/current/en.lproj/dev8dd3880fe.html)
